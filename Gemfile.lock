@@ -469,7 +469,7 @@ DEPENDENCIES
   debug
   factory_bot_rails
   faker
-  ferrum (~> 0.15)
+  ferrum (~> 0.17)
   image_processing (~> 1.2)
   importmap-rails
   jbuilder
