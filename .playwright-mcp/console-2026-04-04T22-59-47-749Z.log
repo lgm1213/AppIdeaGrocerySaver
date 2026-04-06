@@ -1,0 +1,8 @@
+[    1971ms] [LOG] SM: 513200: Page Qualification: 71: Checking for Adobe Data Layer... @ https://cdn.optimizely.com/js/18372160253.js:202
+[    1971ms] [LOG] SM: 513200: Page Qualification: 75: Checking adobeDataLayer element  0 : {event: page_top, user: Object, page: Object} @ https://cdn.optimizely.com/js/18372160253.js:208
+[    1972ms] [LOG] SM: 513200: Page Qualification: 95: User state is Unknown @ https://cdn.optimizely.com/js/18372160253.js:226
+[    1972ms] [LOG] SM: 513200: Page Qualification: 100: User state is Unknown, waiting for log-in link... @ https://cdn.optimizely.com/js/18372160253.js:237
+[    1972ms] [LOG] SM: 513200: Page Qualification: 118: User state is Unknown (fallback), waiting for log-in link... @ https://cdn.optimizely.com/js/18372160253.js:257
+[    2454ms] [LOG] SM: 513200: Page Qualification: isMobileOrNarrow =  false and clubPublixFlyout =  null @ https://cdn.optimizely.com/js/18372160253.js:146
+[    2454ms] [LOG] SM: 513200: Page Qualification: 28: Activated - User state is Unknown and log-in link exists @ https://cdn.optimizely.com/js/18372160253.js:154
+[    2454ms] [LOG] SM: 513200: Page Qualification: 27: hasActivated =  false @ https://cdn.optimizely.com/js/18372160253.js:155

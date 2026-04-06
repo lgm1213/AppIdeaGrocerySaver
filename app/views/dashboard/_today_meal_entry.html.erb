@@ -1,0 +1,38 @@
+<%# Locals: entry, current_plan %>
+<div id="dashboard_entry_<%= entry.id %>"
+     style="display: flex; align-items: center; gap: 1rem; padding: 0.875rem 1rem; background: <%= entry.cooked? ? '#f7f8e8' : 'white' %>; border: 2px solid <%= entry.cooked? ? '#d0d1b3' : '#eff0d1' %>; border-radius: 0.875rem; transition: all 0.2s;">
+
+  <%# Slot pill %>
+  <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #81826d; background: #f7f8e8; border-radius: 9999px; padding: 0.25rem 0.625rem; flex-shrink: 0; min-width: 5rem; text-align: center;">
+    <%= entry.meal_slot %>
+  </span>
+
+  <%# Recipe name %>
+  <div style="flex: 1; min-width: 0;">
+    <% if entry.filled? %>
+      <p style="font-size: 0.9375rem; font-weight: 600; color: <%= entry.cooked? ? '#81826d' : '#373928' %>; margin: 0; <%= entry.cooked? ? 'text-decoration: line-through;' : '' %>">
+        <%= entry.recipe.name %>
+      </p>
+      <p style="font-size: 0.75rem; color: #81826d; margin: 0;"><%= entry.recipe.total_time_label %></p>
+    <% else %>
+      <p style="font-size: 0.9375rem; color: #81826d; margin: 0;">Empty slot</p>
+    <% end %>
+  </div>
+
+  <%# Cooked toggle %>
+  <% if entry.filled? && current_plan %>
+    <%= button_to toggle_cooked_meal_plan_meal_plan_entry_path(current_plan, entry),
+          method: :patch,
+          class: "btn btn-sm",
+          style: "flex-shrink: 0; background: #{entry.cooked? ? '#eff0d1' : '#d9f5db'}; color: #{entry.cooked? ? '#81826d' : '#1a7425'}; border-color: transparent;",
+          data: { turbo_stream: true } do %>
+      <% if entry.cooked? %>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Unmark
+      <% else %>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        Cooked
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

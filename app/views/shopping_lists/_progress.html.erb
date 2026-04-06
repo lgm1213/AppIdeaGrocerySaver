@@ -1,0 +1,18 @@
+<%# Locals: list %>
+<div id="list_progress" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <span style="font-size: 2rem; font-weight: 800; color: #1a7425; font-family: 'Plus Jakarta Sans', sans-serif;"><%= list.completion_percentage %>%</span>
+      <div>
+        <p style="font-size: 0.875rem; font-weight: 600; color: #373928; margin: 0;"><%= list.checked_count %> of <%= list.total_items %> items</p>
+        <p style="font-size: 0.75rem; color: #81826d; margin: 0;"><%= list.total_items - list.checked_count %> remaining</p>
+      </div>
+    </div>
+    <% if list.completed? %>
+      <span class="badge badge-green" style="font-size: 0.875rem; padding: 0.375rem 0.875rem;">Done!</span>
+    <% end %>
+  </div>
+  <div class="progress-track" style="height: 0.625rem;">
+    <div class="progress-fill" style="width: <%= list.completion_percentage %>%; transition: width 0.3s ease;"></div>
+  </div>
+</div>

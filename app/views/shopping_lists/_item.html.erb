@@ -1,0 +1,56 @@
+<%# locals: (item:, deal: nil) %>
+<div id="item_<%= item.id %>"
+     style="display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.875rem; background: <%= item.checked? ? '#f7f8e8' : 'white' %>; border-radius: 0.75rem; border: 2px solid <%= item.checked? ? '#d0d1b3' : '#eff0d1' %>; transition: all 0.15s;">
+
+  <%# Checkbox toggle %>
+  <%= button_to toggle_shopping_list_shopping_list_item_path(item.shopping_list, item),
+        method: :patch,
+        class: "btn btn-ghost",
+        style: "padding: 0; width: 1.5rem; height: 1.5rem; flex-shrink: 0; border-radius: 0.375rem; border: 2px solid #{item.checked? ? '#1a7425' : '#d0d1b3'}; background: #{item.checked? ? '#1a7425' : 'white'};",
+        data: { turbo_stream: true },
+        aria: { label: item.checked? ? "Uncheck #{item.name}" : "Check #{item.name}" } do %>
+    <% if item.checked? %>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    <% end %>
+  <% end %>
+
+  <%# Item name + quantity %>
+  <div style="flex: 1; min-width: 0;">
+    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+      <p style="font-size: 0.9375rem; font-weight: 500; color: <%= item.checked? ? '#81826d' : '#373928' %>; margin: 0; <%= item.checked? ? 'text-decoration: line-through;' : '' %>">
+        <%= item.name %>
+      </p>
+      <% if deal && !item.checked? %>
+        <span class="badge badge-green" style="font-size: 0.625rem; padding: 0.125rem 0.375rem; line-height: 1.4;">
+          <%= deal.deal_type == "bogo" ? "BOGO" : "ON SALE" %>
+        </span>
+      <% end %>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.0625rem;">
+      <% if item.quantity || item.unit %>
+        <p style="font-size: 0.75rem; color: #81826d; margin: 0;">
+          <%= [item.quantity&.to_s&.sub(/\.?0+$/, ""), item.unit].compact.join(" ") %>
+        </p>
+      <% end %>
+      <% if deal && !item.checked? %>
+        <p style="font-size: 0.75rem; color: #1a7425; font-weight: 600; margin: 0;">
+          <%= deal.savings_label %> at <%= deal.store.name %>
+        </p>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Delete %>
+  <%= button_to shopping_list_shopping_list_item_path(item.shopping_list, item),
+        method: :delete,
+        class: "btn btn-ghost btn-sm",
+        style: "padding: 0.25rem; color: #d0d1b3; flex-shrink: 0;",
+        data: { turbo_stream: true },
+        aria: { label: "Remove #{item.name}" } do %>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  <% end %>
+</div>

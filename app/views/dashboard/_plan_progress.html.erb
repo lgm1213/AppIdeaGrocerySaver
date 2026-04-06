@@ -1,0 +1,46 @@
+<div class="card" style="padding: 1.5rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0;">
+      This Week's Plan
+    </h2>
+    <%= link_to "View Calendar →", calendar_meal_plan_path(@current_plan),
+          style: "font-size: 0.8125rem; color: #1a7425; font-weight: 600; text-decoration: none;" %>
+  </div>
+
+  <p style="font-size: 0.8125rem; color: #81826d; margin: 0 0 0.875rem;"><%= @current_plan.week_label %></p>
+
+  <%# Day-by-day mini strip %>
+  <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.375rem; margin-bottom: 1.25rem;">
+    <% today_offset = (Date.current - @current_plan.week_start_date).to_i %>
+    <% MealPlan::DAYS.each_with_index do |day_name, idx| %>
+      <% day_entries = @current_plan.meal_plan_entries.select { |e| e.day_of_week == idx } %>
+      <% cooked = day_entries.count(&:cooked?) %>
+      <% total  = day_entries.count(&:filled?) %>
+      <div style="text-align: center;">
+        <p style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: <%= idx == today_offset ? '#1a7425' : '#81826d' %>; margin: 0 0 0.375rem;">
+          <%= day_name[0..2] %>
+        </p>
+        <div style="width: 2rem; height: 2rem; border-radius: 9999px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 700;
+          <%= if idx == today_offset
+                'background-color: #1a7425; color: white;'
+              elsif total > 0 && cooked == total
+                'background-color: #d9f5db; color: #1a7425;'
+              elsif total > 0
+                'background-color: #f7f8e8; color: #373928;'
+              else
+                'background-color: #f0f0e8; color: #81826d;'
+              end %>">
+          <%= total > 0 ? "#{cooked}/#{total}" : "—" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Progress bar %>
+  <div style="display: flex; align-items: center; gap: 0.875rem;">
+    <div class="progress-track" style="flex: 1; height: 0.5rem;">
+      <div class="progress-fill" style="width: <%= @current_plan.completion_percentage %>%;"></div>
+    </div>
+    <span style="font-size: 0.8125rem; font-weight: 700; color: #373928; flex-shrink: 0;"><%= @current_plan.completion_percentage %>% cooked</span>
+  </div>
+</div>

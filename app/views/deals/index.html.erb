@@ -1,0 +1,51 @@
+<% content_for :page_title, "Weekly Deals" %>
+<% content_for :page_subtitle, "This week's best prices" %>
+
+<% if @user_stores.empty? %>
+  <%# No stores selected yet %>
+  <div style="text-align: center; padding: 3rem 1rem;">
+    <p style="font-size: 1.0625rem; color: #81826d; margin: 0 0 1rem;">
+      You haven't added any stores yet. Add a grocery store in your preferences to see this week's deals.
+    </p>
+    <%= link_to "Add a Store", edit_preferences_path, class: "btn btn-primary" %>
+  </div>
+
+<% elsif @by_category.empty? %>
+  <%# Store added but no deals yet %>
+  <div style="text-align: center; padding: 3rem 1rem;">
+    <p style="font-size: 1.0625rem; color: #81826d; margin: 0 0 0.5rem;">No deals found for your stores yet.</p>
+    <p style="font-size: 0.875rem; color: #81826d;">Deals are refreshed every Wednesday when stores update their weekly ads.</p>
+  </div>
+
+<% else %>
+  <%# BOGO highlight section %>
+  <% bogo_deals = @by_category["BOGO"] %>
+  <% if bogo_deals&.any? %>
+    <div style="margin-bottom: 2rem;">
+      <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.125rem; font-weight: 700; color: #373928; margin: 0 0 0.875rem; display: flex; align-items: center; gap: 0.5rem;">
+        BOGOs
+        <span class="badge badge-green"><%= bogo_deals.size %></span>
+      </h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1rem;">
+        <% bogo_deals.each do |deal| %>
+          <%= render "deals/deal_card", deal: deal, highlight: true %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# All deals by category, excluding BOGO (already shown above) %>
+  <% @by_category.except("BOGO").each do |category, deals| %>
+    <div style="margin-bottom: 2rem;">
+      <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <%= category&.titleize || "Other" %>
+        <span class="badge badge-surface"><%= deals.size %></span>
+      </h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 0.875rem;">
+        <% deals.each do |deal| %>
+          <%= render "deals/deal_card", deal: deal, highlight: false %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

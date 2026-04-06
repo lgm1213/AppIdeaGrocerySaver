@@ -1,0 +1,54 @@
+<% content_for :page_title, "Edit Profile" %>
+<% content_for :header_actions do %>
+  <%= link_to settings_path, class: "btn btn-ghost" do %>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    Back
+  <% end %>
+<% end %>
+
+<div style="max-width: 32rem;">
+  <div class="card" style="padding: 2rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.125rem; font-weight: 700; color: #373928; margin: 0 0 1.5rem;">Profile Settings</h2>
+
+    <%= form_with model: @user, url: settings_path, method: :patch do |f| %>
+      <% if @user.errors.any? %>
+        <div class="flash flash-alert" style="margin-bottom: 1.25rem;">
+          <%= @user.errors.full_messages.to_sentence %>
+        </div>
+      <% end %>
+
+      <div style="margin-bottom: 1.25rem;">
+        <%= f.label :display_name, "Display Name", class: "input-label" %>
+        <%= f.text_field :display_name, class: "input", style: "width: 100%;", placeholder: "Your name" %>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <%= f.label :email_address, "Email Address", class: "input-label" %>
+        <%= f.email_field :email_address, class: "input", style: "width: 100%;", autocomplete: "email" %>
+      </div>
+
+      <% unless @user.provider.present? %>
+        <div style="margin-bottom: 0.25rem; padding-top: 1.25rem; border-top: 2px solid #eff0d1;">
+          <p style="font-size: 0.875rem; font-weight: 600; color: #373928; margin: 0 0 1rem;">Change Password <span style="font-weight: 400; color: #81826d;">(leave blank to keep current)</span></p>
+
+          <div style="margin-bottom: 1.25rem;">
+            <%= f.label :password, "New Password", class: "input-label" %>
+            <%= f.password_field :password, class: "input", style: "width: 100%;", autocomplete: "new-password" %>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <%= f.label :password_confirmation, "Confirm New Password", class: "input-label" %>
+            <%= f.password_field :password_confirmation, class: "input", style: "width: 100%;", autocomplete: "new-password" %>
+          </div>
+        </div>
+      <% end %>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <%= f.submit "Save Changes", class: "btn btn-primary" %>
+        <%= link_to "Cancel", settings_path, class: "btn btn-ghost" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<div class="card" style="padding: 1.5rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0;">
+      Today's Meals
+    </h2>
+    <% if @current_plan %>
+      <%= link_to "Full Calendar →", calendar_meal_plan_path(@current_plan),
+            style: "font-size: 0.8125rem; color: #1a7425; font-weight: 600; text-decoration: none;" %>
+    <% end %>
+  </div>
+
+  <% if @today_entries.empty? %>
+    <div style="text-align: center; padding: 1.5rem 0;">
+      <p style="color: #81826d; font-size: 0.9375rem; margin: 0 0 1rem;">No meals planned for today.</p>
+      <div style="display: flex; gap: 0.625rem; justify-content: center;">
+        <%= link_to "Generate Plan", new_meal_generator_path, class: "btn btn-sm btn-primary" %>
+        <%= link_to "New Plan", new_meal_plan_path, class: "btn btn-sm btn-outline" %>
+      </div>
+    </div>
+  <% else %>
+    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+      <% @today_entries.each do |entry| %>
+        <%= render "dashboard/today_meal_entry", entry: entry, current_plan: @current_plan %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

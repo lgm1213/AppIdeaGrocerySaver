@@ -1,0 +1,59 @@
+<% content_for :progress_percent, "100%" %>
+
+<div style="text-align: center; padding: 2rem 0;">
+
+  <%# Celebration graphic — pure CSS, no images %>
+  <div style="position: relative; display: inline-flex; margin-bottom: 2rem;">
+    <div style="width: 7rem; height: 7rem; background: linear-gradient(135deg, #1a7425, #66bb6a); border-radius: 9999px; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 40px rgba(26,116,37,0.35); animation: pop-in 600ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <%# Orbiting dots — decorative %>
+    <div style="position: absolute; top: -0.5rem; right: -0.5rem; width: 1.25rem; height: 1.25rem; background-color: #fec330; border-radius: 9999px; animation: float 3s ease-in-out infinite;" aria-hidden="true"></div>
+    <div style="position: absolute; bottom: 0; left: -1rem; width: 0.875rem; height: 0.875rem; background-color: #c22225; border-radius: 9999px; animation: float 3s ease-in-out infinite 0.5s;" aria-hidden="true"></div>
+    <div style="position: absolute; top: 1.5rem; left: -1.5rem; width: 0.625rem; height: 0.625rem; background-color: #1a7425; border-radius: 9999px; opacity: 0.5; animation: float 3s ease-in-out infinite 1s;" aria-hidden="true"></div>
+  </div>
+
+  <h1 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.25rem; font-weight: 800; color: #373928; margin: 0 0 0.75rem; letter-spacing: -0.03em;">
+    You're all set, <%= Current.user.name %>! 🎉
+  </h1>
+  <p style="font-size: 1.0625rem; color: #646652; max-width: 30rem; margin: 0 auto 3rem; line-height: 1.7;">
+    Your Save &amp; Savor account is ready. Let's plan your first week of meals and find deals near you.
+  </p>
+
+  <%# What's next cards %>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2.5rem; text-align: left;">
+    <div class="card-tonal" style="padding: 1.25rem;">
+      <div style="font-size: 1.5rem; margin-bottom: 0.625rem;">📅</div>
+      <p style="font-weight: 700; color: #373928; font-size: 0.9375rem; margin: 0 0 0.25rem;">Plan your meals</p>
+      <p style="font-size: 0.8125rem; color: #646652; margin: 0; line-height: 1.5;">Set up your first weekly meal plan with our AI generator</p>
+    </div>
+    <div class="card-tonal" style="padding: 1.25rem;">
+      <div style="font-size: 1.5rem; margin-bottom: 0.625rem;">🏪</div>
+      <p style="font-weight: 700; color: #373928; font-size: 0.9375rem; margin: 0 0 0.25rem;">Find local deals</p>
+      <p style="font-size: 0.8125rem; color: #646652; margin: 0; line-height: 1.5;">Browse this week's deals matched to your ingredients</p>
+    </div>
+    <div class="card-tonal" style="padding: 1.25rem;">
+      <div style="font-size: 1.5rem; margin-bottom: 0.625rem;">🛒</div>
+      <p style="font-weight: 700; color: #373928; font-size: 0.9375rem; margin: 0 0 0.25rem;">Build your list</p>
+      <p style="font-size: 0.8125rem; color: #646652; margin: 0; line-height: 1.5;">Your shopping list generates automatically from your plan</p>
+    </div>
+  </div>
+
+  <%= link_to "Go to my dashboard →", dashboard_path,
+        class: "btn btn-primary btn-primary-lg",
+        style: "font-size: 1.0625rem; padding: 1rem 3rem;" %>
+</div>
+
+<style>
+  @keyframes pop-in {
+    0%   { transform: scale(0.4); opacity: 0; }
+    80%  { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+  }
+</style>

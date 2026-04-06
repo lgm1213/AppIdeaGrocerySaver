@@ -1,0 +1,51 @@
+<%# locals: (meal_plan:, grid:, days:, meal_slots:, deal_savings: {}) %>
+
+<%# Slot label row — meal slots as column headers (we do rows = slots, cols = days) %>
+<div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+  <div style="min-width: 52rem;">
+
+    <%# Day headers %>
+    <div style="display: grid; grid-template-columns: 6.5rem repeat(7, 1fr); gap: 0.5rem; margin-bottom: 0.5rem;">
+      <div></div>
+      <% days.each_with_index do |day_name, idx| %>
+        <div style="text-align: center; padding: 0.5rem;">
+          <p style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #81826d; margin: 0;">
+            <%= day_name[0..2] %>
+          </p>
+          <%# Highlight today's column %>
+          <% today_offset = (Date.current - meal_plan.week_start_date).to_i %>
+          <% if idx == today_offset %>
+            <div style="width: 2rem; height: 2rem; background-color: #1a7425; border-radius: 9999px; display: flex; align-items: center; justify-content: center; margin: 0.25rem auto 0;">
+              <span style="font-size: 0.75rem; font-weight: 700; color: white;"><%= (meal_plan.week_start_date + idx.days).day %></span>
+            </div>
+          <% else %>
+            <p style="font-size: 0.875rem; font-weight: 600; color: #646652; margin: 0.25rem 0 0;"><%= (meal_plan.week_start_date + idx.days).day %></p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Slot rows %>
+    <% meal_slots.each do |slot| %>
+      <div style="display: grid; grid-template-columns: 6.5rem repeat(7, 1fr); gap: 0.5rem; margin-bottom: 0.5rem; align-items: start;">
+        <%# Slot label %>
+        <div style="display: flex; align-items: center; justify-content: flex-end; padding: 0.75rem 0.75rem 0 0;">
+          <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #81826d;"><%= slot %></span>
+        </div>
+
+        <%# Day cells %>
+        <% 7.times do |day| %>
+          <% entry = grid.dig(day, slot) %>
+          <%= turbo_frame_tag "slot_#{day}_#{slot}" do %>
+            <% if entry&.filled? %>
+              <%= render "meal_plans/slot_card", meal_plan: meal_plan, entry: entry, deal_savings: deal_savings %>
+            <% else %>
+              <%= render "meal_plans/empty_slot", meal_plan: meal_plan, day: day, slot: slot %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
+  </div>
+</div>

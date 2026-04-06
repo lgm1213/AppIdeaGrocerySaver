@@ -1,0 +1,27 @@
+<%# Locals: planned_this_week, cooked_this_week, plans_count, lists_count %>
+<div id="dashboard_stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+  <%= render "dashboard/stat_card",
+        label: "Meals Planned",
+        value: planned_this_week,
+        sub: "this week",
+        color: "#1a7425",
+        bg: "#d9f5db" %>
+  <%= render "dashboard/stat_card",
+        label: "Meals Cooked",
+        value: cooked_this_week,
+        sub: "this week",
+        color: "#1a7425",
+        bg: "#d9f5db" %>
+  <%= render "dashboard/stat_card",
+        label: "Meal Plans",
+        value: plans_count,
+        sub: "total",
+        color: "#815f00",
+        bg: "#fff3cd" %>
+  <%= render "dashboard/stat_card",
+        label: "Shopping Lists",
+        value: lists_count,
+        sub: "total",
+        color: "#373928",
+        bg: "#eff0d1" %>
+</div>

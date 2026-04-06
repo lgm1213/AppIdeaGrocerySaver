@@ -1,0 +1,38 @@
+<% ring = budget_ring_data(@weekly_budget, @spent_estimate) %>
+<div class="card" style="padding: 1.5rem; text-align: center;">
+  <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0 0 1.25rem; text-align: left;">
+    Weekly Budget
+  </h2>
+
+  <div style="position: relative; width: 7rem; height: 7rem; margin: 0 auto 1rem;">
+    <svg width="112" height="112" viewBox="0 0 112 112" style="transform: rotate(-90deg);">
+      <%# Track %>
+      <circle cx="56" cy="56" r="40" fill="none" stroke="#eff0d1" stroke-width="10"/>
+      <%# Fill %>
+      <% if ring.pct > 0 %>
+        <circle cx="56" cy="56" r="40" fill="none"
+                stroke="<%= ring.ring_color %>" stroke-width="10"
+                stroke-dasharray="<%= ring.dash_len %> <%= ring.gap_len %>"
+                stroke-linecap="round"/>
+      <% end %>
+    </svg>
+
+    <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <span style="font-size: 1.25rem; font-weight: 800; color: #373928; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1;"><%= ring.pct %>%</span>
+      <span style="font-size: 0.625rem; color: #81826d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">used</span>
+    </div>
+  </div>
+
+  <% if ring.budget > 0 %>
+    <p style="font-size: 0.875rem; font-weight: 700; color: #373928; margin: 0 0 0.25rem;">
+      $<%= ring.spent.round(2) %> <span style="font-weight: 400; color: #81826d;">of $<%= ring.budget.round(2) %></span>
+    </p>
+    <% remaining = ring.budget - ring.spent %>
+    <p style="font-size: 0.75rem; color: <%= remaining >= 0 ? '#1a7425' : '#c0392b' %>; margin: 0;">
+      <%= remaining >= 0 ? "$#{remaining.round(2)} remaining" : "$#{remaining.abs.round(2)} over budget" %>
+    </p>
+  <% else %>
+    <p style="font-size: 0.8125rem; color: #81826d; margin: 0;">No budget set</p>
+    <%= link_to "Set budget →", edit_onboarding_path, style: "font-size: 0.8125rem; color: #1a7425; font-weight: 600; text-decoration: none;" %>
+  <% end %>
+</div>

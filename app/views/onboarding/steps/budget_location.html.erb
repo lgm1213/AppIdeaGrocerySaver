@@ -1,0 +1,176 @@
+<% content_for :progress_percent, "60%" %>
+
+<div data-controller="onboarding">
+  <div style="margin-bottom: 2.5rem;">
+    <span class="badge badge-green" style="margin-bottom: 0.875rem;">Step 2 of 3</span>
+    <h1 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2rem; font-weight: 800; color: #373928; margin: 0 0 0.5rem; letter-spacing: -0.03em;">
+      Budget &amp; location
+    </h1>
+    <p style="font-size: 1rem; color: #646652; margin: 0; line-height: 1.6;">
+      We'll find grocery deals near you and keep your meal plan inside your weekly food budget.
+    </p>
+  </div>
+
+  <%= form_with model: @user_preference,
+        url: onboarding_budget_location_path,
+        method: :post,
+        data: { turbo_frame: "onboarding_step" } do |f| %>
+
+    <%# Validation errors %>
+    <% if @user_preference.errors.any? %>
+      <div class="flash flash-alert" style="margin-bottom: 1.25rem; flex-direction: column; align-items: flex-start; gap: 0.375rem;">
+        <p style="font-weight: 700; font-size: 0.875rem; margin: 0;"><%= pluralize(@user_preference.errors.count, "error") %>:</p>
+        <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.875rem;">
+          <% @user_preference.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%# ── Weekly budget slider ─────────────────────────────────────── %>
+    <div class="card-tonal" style="padding: 1.75rem; margin-bottom: 1.25rem;">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem;">
+        <div>
+          <p class="input-label" style="font-size: 0.9375rem; margin-bottom: 0.25rem;">Weekly food budget</p>
+          <p style="font-size: 0.8125rem; color: #81826d; margin: 0;">We'll warn you when your meal plan exceeds this</p>
+        </div>
+        <div style="text-align: right; flex-shrink: 0; margin-left: 1rem;">
+          <span
+            data-onboarding-target="budgetDisplay"
+            style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2rem; font-weight: 800; color: #1a7425; line-height: 1;"
+          >$<%= @user_preference.weekly_budget&.to_i || 150 %></span>
+          <span style="font-size: 0.875rem; color: #81826d;">/week</span>
+        </div>
+      </div>
+
+      <%# Custom styled range input %>
+      <input
+        type="range"
+        name="user_preference[weekly_budget]"
+        id="budget_slider"
+        min="25"
+        max="600"
+        step="5"
+        value="<%= @user_preference.weekly_budget&.to_i || 150 %>"
+        data-onboarding-target="budgetSlider"
+        data-action="input->onboarding#budgetSliderChanged"
+        style="
+          width: 100%;
+          -webkit-appearance: none;
+          height: 6px;
+          border-radius: 9999px;
+          background: linear-gradient(to right, #1a7425 0%, #1a7425 <%= [(@user_preference.weekly_budget&.to_i || 150).to_f / 600 * 100, 100].min.round %>%, #e9eaca <%= [(@user_preference.weekly_budget&.to_i || 150).to_f / 600 * 100, 100].min.round %>%, #e9eaca 100%);
+          cursor: pointer;
+          outline: none;
+          margin-bottom: 0.625rem;
+        "
+        aria-label="Weekly food budget slider"
+        aria-valuemin="25"
+        aria-valuemax="600"
+        aria-valuenow="<%= @user_preference.weekly_budget&.to_i || 150 %>"
+      >
+      <div style="display: flex; justify-content: space-between;">
+        <span style="font-size: 0.75rem; color: #81826d;">$25</span>
+        <span style="font-size: 0.75rem; color: #81826d;">$600+</span>
+      </div>
+
+      <%# Budget presets %>
+      <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+        <% [75, 100, 150, 200, 300].each do |preset| %>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            data-action="click->onboarding#setBudgetPreset"
+            data-preset="<%= preset %>"
+          >$<%= preset %>/wk</button>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ── Zip code ──────────────────────────────────────────────────── %>
+    <div class="card-tonal" style="padding: 1.75rem; margin-bottom: 1.25rem;">
+      <p class="input-label" style="font-size: 0.9375rem; margin-bottom: 0.25rem;">Your zip code</p>
+      <p style="font-size: 0.8125rem; color: #81826d; margin: 0 0 0.875rem;">Used to find nearby store deals — we never share your location</p>
+
+      <div style="max-width: 14rem;">
+        <%= f.text_field :zip_code,
+              class: "input",
+              placeholder: "e.g. 78701",
+              maxlength: 10,
+              autocomplete: "postal-code",
+              inputmode: "numeric" %>
+      </div>
+    </div>
+
+    <%# ── Grocery stores ───────────────────────────────────────────── %>
+    <div class="card-tonal" style="padding: 1.75rem; margin-bottom: 2rem;">
+      <p class="input-label" style="font-size: 0.9375rem; margin-bottom: 0.25rem;">
+        Your grocery store(s)
+        <span class="badge badge-surface" style="font-size: 0.6875rem; margin-left: 0.375rem; vertical-align: middle;">Optional</span>
+      </p>
+      <p style="font-size: 0.8125rem; color: #81826d; margin: 0 0 1rem;">
+        We'll pull this week's deals and build your meal plan around what's on sale.
+      </p>
+
+      <% if @available_stores.any? %>
+        <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+          <% @available_stores.each do |store| %>
+            <% checked = @selected_store_ids.include?(store.id) %>
+            <label style="display: flex; align-items: center; gap: 0.875rem; padding: 0.875rem 1rem; background: <%= checked ? '#d9f5db' : 'white' %>; border: 2px solid <%= checked ? '#1a7425' : '#e9eaca' %>; border-radius: 0.875rem; cursor: pointer; transition: all 0.15s;">
+              <input
+                type="checkbox"
+                name="store_ids[]"
+                value="<%= store.id %>"
+                <%= checked ? "checked" : "" %>
+                style="width: 1.125rem; height: 1.125rem; accent-color: #1a7425; flex-shrink: 0;"
+              >
+              <div>
+                <p style="font-size: 0.9375rem; font-weight: 600; color: #373928; margin: 0;"><%= store.name %></p>
+                <p style="font-size: 0.75rem; color: #81826d; margin: 0;">
+                  Weekly deals updated automatically
+                  <% if store.deals_fetched_at %>
+                    · last synced <%= time_ago_in_words(store.deals_fetched_at) %> ago
+                  <% end %>
+                </p>
+              </div>
+              <% if checked %>
+                <span style="margin-left: auto; font-size: 0.75rem; font-weight: 700; color: #1a7425; background: #d9f5db; padding: 0.2rem 0.5rem; border-radius: 9999px;">Added</span>
+              <% end %>
+            </label>
+          <% end %>
+        </div>
+      <% else %>
+        <p style="font-size: 0.875rem; color: #81826d; font-style: italic;">No stores available yet — check back soon.</p>
+      <% end %>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <%= link_to "← Back", onboarding_preferences_path, class: "btn btn-ghost" %>
+      <%= f.submit "Continue →", class: "btn btn-primary btn-primary-lg" %>
+    </div>
+
+  <% end %>
+</div>
+
+<style>
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #1a7425;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(26,116,37,0.35);
+    border: 2px solid white;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #1a7425;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(26,116,37,0.35);
+    border: 2px solid white;
+  }
+</style>

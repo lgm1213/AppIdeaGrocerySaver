@@ -1,0 +1,69 @@
+<% content_for :page_title, "New Shopping List" %>
+<% content_for :header_actions do %>
+  <%= link_to shopping_lists_path, class: "btn btn-ghost" do %>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    Back
+  <% end %>
+<% end %>
+
+<div style="max-width: 32rem;">
+
+  <%# Quick generate from plan %>
+  <% if @meal_plans.any? %>
+    <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+      <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0 0 0.5rem;">Generate from a Meal Plan</h2>
+      <p style="font-size: 0.875rem; color: #646652; margin: 0 0 1rem;">Automatically build your list from all the ingredients in a plan.</p>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <% @meal_plans.first(3).each do |plan| %>
+          <%= button_to generate_from_plan_shopping_lists_path,
+                method: :post,
+                params: { meal_plan_id: plan.id },
+                class: "btn btn-surface",
+                style: "justify-content: space-between; text-align: left;" do %>
+            <div>
+              <span style="font-weight: 600; color: #373928;"><%= plan.name %></span>
+              <span style="font-size: 0.75rem; color: #81826d; margin-left: 0.5rem;"><%= plan.week_label %></span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a7425" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+      <div style="flex: 1; height: 1px; background: #d0d1b3;"></div>
+      <span style="font-size: 0.8125rem; color: #81826d; font-weight: 600;">or create manually</span>
+      <div style="flex: 1; height: 1px; background: #d0d1b3;"></div>
+    </div>
+  <% end %>
+
+  <%# Manual form %>
+  <div class="card" style="padding: 1.75rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0 0 1.25rem;">Blank List</h2>
+
+    <%= form_with model: @list, url: shopping_lists_path do |f| %>
+      <% if @list.errors.any? %>
+        <div class="flash flash-alert" style="margin-bottom: 1rem;"><%= @list.errors.full_messages.to_sentence %></div>
+      <% end %>
+
+      <div style="margin-bottom: 1.25rem;">
+        <%= f.label :name, "List Name", class: "input-label" %>
+        <%= f.text_field :name, class: "input", style: "width: 100%;", placeholder: "e.g. Weekend grocery run" %>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <%= f.label :shop_date, "Shopping Date (optional)", class: "input-label" %>
+        <%= f.date_field :shop_date, class: "input", style: "width: 100%;" %>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <%= f.submit "Create List", class: "btn btn-primary" %>
+        <%= link_to "Cancel", shopping_lists_path, class: "btn btn-ghost" %>
+      </div>
+    <% end %>
+  </div>
+</div>

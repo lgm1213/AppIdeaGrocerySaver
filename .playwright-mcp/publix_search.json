@@ -1,0 +1,1 @@
+"{\"errors\":[{\"message\":\"The request is missing the \\u0060query\\u0060 property and the \\u0060id\\u0060 property.\",\"locations\":[{\"line\":1,\"column\":47}],\"extensions\":{\"code\":\"HC0011\"}}]}"

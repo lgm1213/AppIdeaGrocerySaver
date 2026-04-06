@@ -1,0 +1,46 @@
+<div class="card" style="padding: 1.5rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0;">
+      Shopping List
+    </h2>
+    <%= link_to "View All →", shopping_list_path(@active_list),
+          style: "font-size: 0.8125rem; color: #1a7425; font-weight: 600; text-decoration: none;" %>
+  </div>
+
+  <p style="font-size: 0.8125rem; color: #81826d; margin: 0 0 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= @active_list.name %></p>
+
+  <%# Progress %>
+  <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+    <div class="progress-track" style="flex: 1; height: 0.5rem;">
+      <div class="progress-fill" style="width: <%= @active_list.completion_percentage %>%;"></div>
+    </div>
+    <span style="font-size: 0.8125rem; font-weight: 700; color: #373928; flex-shrink: 0;"><%= @active_list.checked_count %>/<%= @active_list.total_items %></span>
+  </div>
+
+  <%# First 5 unchecked items %>
+  <% unchecked = @active_list.shopping_list_items.unchecked.first(5) %>
+  <div style="display: flex; flex-direction: column; gap: 0.375rem;">
+    <% unchecked.each do |item| %>
+      <div style="display: flex; align-items: center; gap: 0.625rem; padding: 0.5rem 0;">
+        <%= button_to toggle_shopping_list_shopping_list_item_path(@active_list, item),
+              method: :patch,
+              class: "btn btn-ghost",
+              style: "padding: 0; width: 1.25rem; height: 1.25rem; flex-shrink: 0; border-radius: 0.3rem; border: 2px solid #d0d1b3; background: white;",
+              data: { turbo_stream: true } do %><% end %>
+        <span style="font-size: 0.875rem; color: #373928;"><%= item.name %></span>
+        <% if item.quantity %>
+          <span style="font-size: 0.75rem; color: #81826d; margin-left: auto;">
+            <%= [item.quantity.to_s.sub(/\.?0+$/, ""), item.unit].compact.join(" ") %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% remaining = @active_list.total_items - @active_list.checked_count - unchecked.count %>
+  <% if remaining > 0 %>
+    <p style="font-size: 0.75rem; color: #81826d; margin: 0.75rem 0 0; text-align: center;">
+      + <%= remaining %> more item<%= remaining == 1 ? "" : "s" %>
+    </p>
+  <% end %>
+</div>

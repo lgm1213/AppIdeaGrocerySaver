@@ -1,0 +1,94 @@
+<% content_for :page_title, "Meal Generator" %>
+<% content_for :page_subtitle, "Get a full week of meals in one click" %>
+
+<div style="max-width: 36rem;">
+
+  <% if flash[:alert] %>
+    <div class="flash flash-alert" style="margin-bottom: 1.25rem;" data-controller="flash"><%= flash[:alert] %></div>
+  <% end %>
+
+  <%# Preference summary %>
+  <% if @preference %>
+    <div class="card-tonal" style="padding: 1.25rem 1.5rem; border-radius: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+        <div>
+          <p style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #81826d; margin: 0;">Household</p>
+          <p style="font-size: 0.9375rem; font-weight: 600; color: #373928; margin: 0;"><%= @preference.household_size %> people</p>
+        </div>
+        <div>
+          <p style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #81826d; margin: 0;">Budget</p>
+          <p style="font-size: 0.9375rem; font-weight: 600; color: #373928; margin: 0;"><%= @preference.budget_display %></p>
+        </div>
+        <div>
+          <p style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #81826d; margin: 0;">Dietary</p>
+          <p style="font-size: 0.9375rem; font-weight: 600; color: #373928; margin: 0;"><%= @preference.dietary_restrictions.any? ? @preference.dietary_restrictions.first(2).map(&:humanize).join(", ") : "None" %></p>
+        </div>
+      </div>
+      <%= link_to "Edit", edit_preferences_path, class: "btn btn-sm btn-outline" %>
+    </div>
+  <% end %>
+
+  <%# Generator form %>
+  <%= form_with url: generate_meal_generator_path, method: :post do |f| %>
+    <div class="card" style="padding: 2rem; margin-bottom: 1.5rem;">
+      <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.125rem; font-weight: 700; color: #373928; margin: 0 0 1.5rem;">Generate Options</h2>
+
+      <div style="margin-bottom: 1.5rem;" data-controller="week-picker">
+        <label class="input-label">Week Starting</label>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.375rem;">
+          <% [0, 1, 2, 3].each do |offset| %>
+            <% week_start = MealPlan.current_week_start + offset.weeks %>
+            <input type="radio"
+                   name="week_start"
+                   value="<%= week_start %>"
+                   data-week-picker-target="radio"
+                   <%= "checked" if offset == 0 %>
+                   style="display: none;">
+            <button type="button"
+                    class="chip <%= offset == 0 ? 'chip-active' : 'chip-inactive' %>"
+                    style="font-size: 0.8125rem; cursor: pointer;"
+                    data-week-picker-target="chip"
+                    data-index="<%= offset %>"
+                    data-action="click->week-picker#select">
+              <%= offset == 0 ? "This week" : offset == 1 ? "Next week" : week_start.strftime("#{week_start.day.ordinalize} %b") %>
+            </button>
+          <% end %>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 0;">
+        <p class="input-label" style="margin-bottom: 0.75rem;">Meals to include</p>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <% [["Breakfast", "include_breakfast"], ["Lunch", "include_lunch"], ["Dinner", "include_dinner"]].each do |label, field| %>
+            <% active = @preference&.send(field) != false %>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.875rem; font-weight: 500; color: #373928; background: #f7f8e8; border-radius: 0.5rem; padding: 0.5rem 0.875rem;">
+              <input type="checkbox" name="<%= field %>" value="1" <%= "checked" if active %>> <%= label %>
+            </label>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# How it works %>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.875rem; margin-bottom: 1.75rem;">
+      <% [
+        ["Reads your preferences", "Dietary needs, skill level, and budget"],
+        ["Picks matching recipes", "Balanced across breakfast, lunch, dinner"],
+        ["Fills your calendar", "One click away from a full week"]
+      ].each_with_index do |(title, desc), i| %>
+        <div style="text-align: center; padding: 1.25rem 0.875rem; background: #f7f8e8; border-radius: 1rem;">
+          <div style="width: 2rem; height: 2rem; background-color: #1a7425; color: white; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem; margin: 0 auto 0.75rem; font-family: 'Plus Jakarta Sans', sans-serif;"><%= i + 1 %></div>
+          <p style="font-size: 0.8125rem; font-weight: 700; color: #373928; margin: 0 0 0.25rem;"><%= title %></p>
+          <p style="font-size: 0.75rem; color: #81826d; margin: 0; line-height: 1.4;"><%= desc %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <%= f.submit "Generate My Meal Plan", class: "btn btn-primary-lg", style: "width: 100%;" %>
+  <% end %>
+
+  <%# Link to existing plans %>
+  <p style="text-align: center; margin-top: 1rem; font-size: 0.875rem; color: #81826d;">
+    Already have plans? <%= link_to "View all meal plans", meal_plans_path, style: "color: #1a7425; font-weight: 600;" %>
+  </p>
+</div>

@@ -1,0 +1,107 @@
+<% content_for :page_title, @deal.name %>
+<% content_for :page_subtitle, @deal.store.name %>
+<% content_for :header_actions do %>
+  <%= link_to deals_path, class: "btn btn-ghost" do %>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    All Deals
+  <% end %>
+<% end %>
+
+<div style="max-width: 36rem;">
+
+  <%# Main deal card %>
+  <div class="card" style="padding: 1.75rem; margin-bottom: 1.25rem; <%= @deal.deal_type == 'bogo' ? 'border: 2px solid #1a7425;' : '' %>">
+
+    <%# Header: name + deal type badge %>
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem;">
+      <div>
+        <% if @deal.category.present? %>
+          <p style="font-size: 0.75rem; font-weight: 600; color: #81826d; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.375rem;">
+            <%= @deal.category.titleize %>
+          </p>
+        <% end %>
+        <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.375rem; font-weight: 800; color: #373928; margin: 0; line-height: 1.25;">
+          <%= @deal.name %>
+        </h2>
+      </div>
+      <% badge_color = @deal.deal_type == "bogo" ? "badge-green" : "badge-red" %>
+      <span class="badge <%= badge_color %>" style="flex-shrink: 0; font-size: 0.75rem; padding: 0.25rem 0.625rem;">
+        <%= @deal.deal_type == "bogo" ? "BOGO" : @deal.deal_type.upcase %>
+      </span>
+    </div>
+
+    <%# Savings amount %>
+    <div style="padding: 1rem 1.25rem; background: #f7f8e8; border-radius: 0.75rem; margin-bottom: 1.25rem; text-align: center;">
+      <p style="font-size: 2rem; font-weight: 800; color: #1a7425; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0 0 0.25rem;">
+        <%= @deal.savings_label %>
+      </p>
+      <% if @deal.savings_amount&.positive? %>
+        <p style="font-size: 0.875rem; color: #4a7c59; font-weight: 600; margin: 0;">
+          Save up to $<%= format("%.2f", @deal.savings_amount) %>
+        </p>
+      <% end %>
+    </div>
+
+    <%# Deal details grid %>
+    <dl style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1.5rem;">
+
+      <div>
+        <dt style="font-size: 0.6875rem; font-weight: 600; color: #81826d; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.125rem;">Store</dt>
+        <dd style="font-size: 0.9375rem; font-weight: 600; color: #373928; margin: 0;"><%= @deal.store.name %></dd>
+      </div>
+
+      <% if @deal.valid_until %>
+        <div>
+          <dt style="font-size: 0.6875rem; font-weight: 600; color: #81826d; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.125rem;">Valid Through</dt>
+          <dd style="font-size: 0.9375rem; font-weight: 600; color: #373928; margin: 0;"><%= @deal.valid_until.strftime("%B %-d, %Y") %></dd>
+        </div>
+      <% end %>
+
+      <% if @deal.valid_from %>
+        <div>
+          <dt style="font-size: 0.6875rem; font-weight: 600; color: #81826d; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.125rem;">Valid From</dt>
+          <dd style="font-size: 0.9375rem; font-weight: 600; color: #373928; margin: 0;"><%= @deal.valid_from.strftime("%B %-d, %Y") %></dd>
+        </div>
+      <% end %>
+
+      <% if @deal.unit.present? %>
+        <div>
+          <dt style="font-size: 0.6875rem; font-weight: 600; color: #81826d; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.125rem;">Unit</dt>
+          <dd style="font-size: 0.9375rem; font-weight: 600; color: #373928; margin: 0;">Per <%= @deal.unit %></dd>
+        </div>
+      <% end %>
+
+      <% if @deal.multi_quantity.present? %>
+        <div>
+          <dt style="font-size: 0.6875rem; font-weight: 600; color: #81826d; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.125rem;">Quantity</dt>
+          <dd style="font-size: 0.9375rem; font-weight: 600; color: #373928; margin: 0;"><%= @deal.multi_quantity %> items</dd>
+        </div>
+      <% end %>
+
+    </dl>
+  </div>
+
+  <%# Matched ingredient card %>
+  <% if @deal.ingredient %>
+    <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 2.25rem; height: 2.25rem; background: #f0faf1; border-radius: 0.625rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a7425" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/>
+          </svg>
+        </div>
+        <div>
+          <p style="font-size: 0.75rem; font-weight: 600; color: #81826d; margin: 0 0 0.125rem;">Matched Ingredient</p>
+          <p style="font-size: 0.9375rem; font-weight: 700; color: #373928; margin: 0;">
+            <%= @deal.ingredient.name %>
+            <span style="font-size: 0.75rem; font-weight: 400; color: #81826d; text-transform: capitalize;">· <%= @deal.ingredient.category %></span>
+          </p>
+        </div>
+        <span class="badge badge-green" style="margin-left: auto; font-size: 0.6875rem;">Used in meal plans</span>
+      </div>
+    </div>
+  <% end %>
+
+</div>

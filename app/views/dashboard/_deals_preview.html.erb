@@ -1,0 +1,46 @@
+<%
+  category_colors = {
+    "Produce"       => { bg: "#d9f5db", color: "#1a7425" },
+    "Meat"          => { bg: "#fce4ec", color: "#c62828" },
+    "Seafood"       => { bg: "#e3f2fd", color: "#1565c0" },
+    "Dairy"         => { bg: "#fff3cd", color: "#815f00" },
+    "Grocery"       => { bg: "#eff0d1", color: "#373928" },
+    "Frozen Food"   => { bg: "#e8f4fd", color: "#0d47a1" },
+    "Deli"          => { bg: "#fef9e7", color: "#7d6608" },
+    "Bakery"        => { bg: "#fdf2e9", color: "#784212" },
+  }
+  default_colors = { bg: "#eff0d1", color: "#373928" }
+%>
+<div class="card" style="padding: 1.5rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0;">
+      This Week's Deals
+    </h2>
+    <%= link_to "See All →", deals_path,
+          style: "font-size: 0.8125rem; color: #1a7425; font-weight: 600; text-decoration: none;" %>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+    <% @deal_previews.each do |deal| %>
+      <% colors = category_colors[deal.category] || default_colors %>
+      <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.75rem; background: #fafaf5; border-radius: 0.75rem;">
+        <div style="width: 2.25rem; height: 2.25rem; background: <%= colors[:bg] %>; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <span style="font-size: 0.625rem; font-weight: 800; color: <%= colors[:color] %>; text-transform: uppercase;">
+            <%= deal.category&.first(3) || "🏷" %>
+          </span>
+        </div>
+
+        <div style="flex: 1; min-width: 0;">
+          <p style="font-size: 0.875rem; font-weight: 600; color: #373928; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <%= deal.name %>
+          </p>
+          <p style="font-size: 0.75rem; color: #81826d; margin: 0;"><%= deal.store.name %></p>
+        </div>
+
+        <div style="background: #d9f5db; color: #1a7425; font-size: 0.6875rem; font-weight: 800; padding: 0.25rem 0.5rem; border-radius: 9999px; flex-shrink: 0; white-space: nowrap;">
+          <%= deal.savings_label %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

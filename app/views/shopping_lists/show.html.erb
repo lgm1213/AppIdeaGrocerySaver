@@ -1,0 +1,72 @@
+<% content_for :page_title, @list.name %>
+<% content_for :header_actions do %>
+  <%= render "shopping_lists/list_status", list: @list %>
+  <%= link_to shopping_lists_path, class: "btn btn-ghost" do %>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    All Lists
+  <% end %>
+<% end %>
+
+<%# Progress bar %>
+<%= render "shopping_lists/progress", list: @list %>
+
+<%# Linked plan badge %>
+<% if @list.meal_plan %>
+  <div style="display: flex; align-items: center; gap: 0.625rem; margin-bottom: 1.5rem; font-size: 0.8125rem; color: #646652;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    Generated from
+    <%= link_to @list.meal_plan.name, calendar_meal_plan_path(@list.meal_plan),
+          style: "color: #1a7425; font-weight: 600;" %>
+  </div>
+<% end %>
+
+<div style="display: grid; grid-template-columns: 1fr 20rem; gap: 1.5rem; align-items: start;">
+
+  <%# Items by category %>
+  <div>
+    <% if @items_by_category.empty? %>
+      <div class="card" style="padding: 2rem; text-align: center;">
+        <p style="color: #81826d; margin: 0 0 1rem;">No items yet. Add some below!</p>
+      </div>
+    <% else %>
+      <% @items_by_category.each do |category, items| %>
+        <div style="margin-bottom: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span style="font-size: 1.125rem;" aria-hidden="true"><%= ShoppingListItem::CATEGORY_ICONS.fetch(category, "🛒") %></span>
+            <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.875rem; font-weight: 700; color: #373928; margin: 0; text-transform: capitalize;"><%= category %></h3>
+            <span class="badge badge-surface"><%= items.count %></span>
+          </div>
+
+          <div id="items_<%= category %>" style="display: flex; flex-direction: column; gap: 0.375rem;">
+            <% items.each do |item| %>
+              <%= render "shopping_lists/item", item: item, deal: @deal_map[item.ingredient_id] %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <%# Right column: add item form %>
+  <div style="position: sticky; top: 5rem;">
+    <div class="card" style="padding: 1.25rem;">
+      <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #373928; margin: 0 0 1rem;">Add Item</h3>
+      <%= render "shopping_lists/add_item_form", list: @list, item: nil %>
+    </div>
+
+    <% if @list.meal_plan.nil? %>
+      <div class="card-tonal" style="padding: 1rem; border-radius: 0.875rem; margin-top: 1rem;">
+        <p style="font-size: 0.8125rem; color: #646652; margin: 0 0 0.75rem;">Have a meal plan? Generate a full list automatically.</p>
+        <%= link_to meal_plans_path, class: "btn btn-sm btn-outline", style: "width: 100%;" do %>
+          Browse Meal Plans
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+</div>

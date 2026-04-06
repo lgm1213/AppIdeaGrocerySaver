@@ -1,0 +1,32 @@
+<%# Locals: list %>
+<div class="card card-hover" style="padding: 1.25rem 1.5rem;">
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.875rem;">
+    <div style="flex: 1; min-width: 0;">
+      <% if list.completed? %>
+        <span class="badge badge-surface" style="margin-bottom: 0.375rem; display: inline-block;">Completed</span>
+      <% end %>
+      <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0 0 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+        <%= list.name %>
+      </h3>
+      <p style="font-size: 0.8125rem; color: #81826d; margin: 0;">
+        <%= list.total_items %> items
+        <% if list.shop_date %>
+          · <%= list.shop_date.strftime("%b %-d") %>
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+  <div class="progress-track" style="margin-bottom: 1rem;">
+    <div class="progress-fill" style="width: <%= list.completion_percentage %>%;"></div>
+  </div>
+  <p style="font-size: 0.75rem; color: #81826d; margin: 0 0 1rem;"><%= list.checked_count %> of <%= list.total_items %> items checked</p>
+
+  <div style="display: flex; gap: 0.5rem;">
+    <%= link_to shopping_list_path(list), class: "btn btn-sm btn-primary" do %>View List<% end %>
+    <%= button_to shopping_list_path(list), method: :delete,
+          class: "btn btn-sm btn-ghost",
+          style: "color: #c22225;",
+          data: { turbo_confirm: "Delete \"#{list.name}\"?" } do %>Delete<% end %>
+  </div>
+</div>

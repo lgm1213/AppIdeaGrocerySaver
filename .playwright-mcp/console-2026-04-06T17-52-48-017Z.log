@@ -1,0 +1,16 @@
+[     221ms] [LOG] 🚀 Page Payload Updated @ https://magic.wizards.com/_nuxt/105.e433b38a14cbc5a4ac70.js:0
+[     227ms] [LOG] hello? @ https://magic.wizards.com/_nuxt/22.ec78f31303d7b092c3d4.js:0
+[     227ms] [LOG] on ready @ https://magic.wizards.com/_nuxt/22.ec78f31303d7b092c3d4.js:0
+[     227ms] [LOG] [] @ https://magic.wizards.com/_nuxt/22.ec78f31303d7b092c3d4.js:0
+[     254ms] [LOG] setInWindow: gtmConsentListeners success:  true @ https://www.googletagmanager.com/gtm.js?id=GTM-P9XT3MP:1039
+[     374ms] [LOG] on ready @ https://magic.wizards.com/_nuxt/22.ec78f31303d7b092c3d4.js:0
+[     374ms] [LOG] [] @ https://magic.wizards.com/_nuxt/22.ec78f31303d7b092c3d4.js:0
+[   12179ms] [WARNING] [useFetchMagicCardFromContentful] No entries found for lutri-the-spellchaser. @ https://magic.wizards.com/assets/js/web-components-registry.MPkNudQm.js:20
+[   12179ms] [LOG] Fallback to card service for %cLutri, the Spellchaser%c color: #eb2c06; font-weight: bold;  @ https://magic.wizards.com/assets/js/web-components-registry.MPkNudQm.js:20
+[   24634ms] [WARNING] [TikTok Pixel] - Missing value for content ID
+Issue: Include a value for your 'content_id' parameter. This is required for Video Shopping Ads (VSA).
+Suggestion: If you are or plan to run Video Shopping Ads (VSA), go to your source code and include a value for the 'content_id' parameter. See https://ads.tiktok.com/help/article/standard-events-parameters?redirected=2 for more information. @ https://analytics.tiktok.com/i18n/pixel/static/main.MWE0ZWQ3ZWQwOA.js:0
+[   25151ms] [WARNING] [TikTok Pixel] - Missing value for content ID
+Issue: Include a value for your 'content_id' parameter. This is required for Video Shopping Ads (VSA).
+Suggestion: If you are or plan to run Video Shopping Ads (VSA), go to your source code and include a value for the 'content_id' parameter. See https://ads.tiktok.com/help/article/standard-events-parameters?redirected=2 for more information. @ https://analytics.tiktok.com/i18n/pixel/static/main.MWE0ZWQ3ZWQwOA.js:0
+[   58818ms] [LOG] Creating popper instance for %cLibrary of Leng%c color: #eb2c06; font-weight: bold;  @ https://magic.wizards.com/assets/js/web-components-registry.MPkNudQm.js:20

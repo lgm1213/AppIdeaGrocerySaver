@@ -1,0 +1,181 @@
+<% content_for :progress_percent, "25%" %>
+
+<div data-controller="onboarding">
+  <div style="margin-bottom: 2.5rem;">
+    <span class="badge badge-green" style="margin-bottom: 0.875rem;">Step 1 of 3</span>
+    <h1 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2rem; font-weight: 800; color: #373928; margin: 0 0 0.5rem; letter-spacing: -0.03em;">
+      Tell us about your household
+    </h1>
+    <p style="font-size: 1rem; color: #646652; margin: 0; line-height: 1.6;">
+      We'll use this to personalise your meal plans and filter recipes that work for everyone at your table.
+    </p>
+  </div>
+
+  <%= form_with model: @user_preference,
+        url: onboarding_preferences_path,
+        method: :post,
+        data: { turbo_frame: "onboarding_step" } do |f| %>
+
+    <%# ── Household size ───────────────────────────────────────────── %>
+    <div class="card-tonal" style="padding: 1.5rem; margin-bottom: 1.25rem;">
+      <p class="input-label" style="margin-bottom: 0.875rem; font-size: 0.9375rem;">
+        How many people are you feeding?
+      </p>
+
+      <%= f.hidden_field :household_size,
+            value: @user_preference.household_size,
+            data: { onboarding_target: "sizeInput" } %>
+
+      <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem;">
+        <% [1, 2, 3, 4, 5, "6+"].each do |n| %>
+          <% val = n == "6+" ? 6 : n %>
+          <button
+            type="button"
+            data-onboarding-target="sizeOption"
+            data-value="<%= val %>"
+            data-action="click->onboarding#selectSize"
+            style="
+              padding: 0.75rem 0.5rem;
+              border-radius: 0.625rem;
+              text-align: center;
+              font-weight: 700;
+              font-size: 1rem;
+              font-family: 'Be Vietnam Pro', sans-serif;
+              background-color: <%= @user_preference.household_size == val ? '#1a7425' : '#e9eaca' %>;
+              color: <%= @user_preference.household_size == val ? 'white' : '#646652' %>;
+              cursor: pointer;
+              border: none;
+              transition: all 140ms;
+            "
+            aria-label="<%= n %> <%= n == 1 ? 'person' : 'people' %>"
+          ><%= n %></button>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ── Dietary restrictions ─────────────────────────────────────── %>
+    <div class="card-tonal" style="padding: 1.5rem; margin-bottom: 1.25rem;">
+      <p class="input-label" style="margin-bottom: 0.25rem; font-size: 0.9375rem;">
+        Any dietary restrictions?
+      </p>
+      <p style="font-size: 0.8125rem; color: #81826d; margin: 0 0 0.875rem;">Select all that apply — you can change this later</p>
+
+      <%# Pre-populate hidden inputs for already-selected values %>
+      <% (@user_preference.dietary_restrictions || []).each do |val| %>
+        <input type="hidden" name="user_preference[dietary_restrictions][]" value="<%= val %>" data-chip-group="dietary">
+      <% end %>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        <% dietary_options = {
+          "vegetarian"  => { label: "🥦 Vegetarian",   value: "vegetarian" },
+          "vegan"       => { label: "🌱 Vegan",         value: "vegan" },
+          "gluten_free" => { label: "🌾 Gluten-Free",   value: "gluten_free" },
+          "dairy_free"  => { label: "🥛 Dairy-Free",    value: "dairy_free" },
+          "nut_free"    => { label: "🥜 Nut-Free",      value: "nut_free" },
+          "keto"        => { label: "🥩 Keto",           value: "keto" },
+          "paleo"       => { label: "🍖 Paleo",          value: "paleo" },
+          "halal"       => { label: "☪️ Halal",           value: "halal" },
+          "kosher"      => { label: "✡️ Kosher",          value: "kosher" },
+          "low_sodium"  => { label: "🧂 Low Sodium",     value: "low_sodium" }
+        } %>
+
+        <% dietary_options.each do |key, opt| %>
+          <% selected = (@user_preference.dietary_restrictions || []).include?(opt[:value]) %>
+          <button
+            type="button"
+            class="chip <%= selected ? 'chip-active' : 'chip-inactive' %>"
+            data-onboarding-target="chip"
+            data-value="<%= opt[:value] %>"
+            data-group="dietary"
+            data-action="click->onboarding#toggleChip"
+            aria-pressed="<%= selected %>"
+          ><%= opt[:label] %></button>
+        <% end %>
+
+        <button
+          type="button"
+          class="chip chip-inactive"
+          style="font-style: italic;"
+          data-onboarding-target="chip"
+          data-value="none"
+          data-group="dietary"
+          data-action="click->onboarding#toggleChip"
+          aria-pressed="false"
+        >None — I eat everything</button>
+      </div>
+    </div>
+
+    <%# ── Cooking skill ────────────────────────────────────────────── %>
+    <div class="card-tonal" style="padding: 1.5rem; margin-bottom: 1.25rem;">
+      <p class="input-label" style="margin-bottom: 0.875rem; font-size: 0.9375rem;">
+        How would you describe your cooking skill?
+      </p>
+
+      <%= f.hidden_field :cooking_skill,
+            value: @user_preference.cooking_skill,
+            data: { onboarding_target: "skillInput" } %>
+
+      <div style="display: flex; gap: 0.625rem; flex-wrap: wrap;">
+        <% [
+          { value: "beginner",     label: "🍳 Beginner",     desc: "Simple 30-min meals" },
+          { value: "intermediate", label: "👨‍🍳 Intermediate", desc: "Comfortable with most recipes" },
+          { value: "advanced",     label: "⭐ Advanced",      desc: "Complex techniques welcome" }
+        ].each do |skill| %>
+          <% selected = @user_preference.cooking_skill == skill[:value] %>
+          <button
+            type="button"
+            class="chip <%= selected ? 'chip-active' : 'chip-inactive' %>"
+            style="flex-direction: column; padding: 0.75rem 1.25rem; height: auto; gap: 0.25rem; text-align: left; border-radius: 0.75rem;"
+            data-onboarding-target="skillOption"
+            data-value="<%= skill[:value] %>"
+            data-action="click->onboarding#selectSkill"
+            aria-pressed="<%= selected %>"
+          >
+            <span style="font-size: 0.9375rem; font-weight: 600;"><%= skill[:label] %></span>
+            <span style="font-size: 0.75rem; opacity: 0.8; font-weight: 400;"><%= skill[:desc] %></span>
+          </button>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ── Meal complexity ──────────────────────────────────────────── %>
+    <div class="card-tonal" style="padding: 1.5rem; margin-bottom: 2rem;">
+      <p class="input-label" style="margin-bottom: 0.875rem; font-size: 0.9375rem;">
+        How much time do you want to spend cooking per meal?
+      </p>
+
+      <%= f.hidden_field :meal_complexity,
+            value: @user_preference.meal_complexity,
+            data: { onboarding_target: "complexityInput" } %>
+
+      <div style="display: flex; gap: 0.625rem;">
+        <% [
+          { value: "quick",      label: "⚡ Quick",     desc: "Under 20 min" },
+          { value: "moderate",   label: "⏱ Moderate",  desc: "20–45 min" },
+          { value: "elaborate",  label: "🎨 Elaborate", desc: "45+ min, love to cook" }
+        ].each do |opt| %>
+          <% selected = @user_preference.meal_complexity == opt[:value] %>
+          <button
+            type="button"
+            class="chip <%= selected ? 'chip-active' : 'chip-inactive' %>"
+            style="flex: 1; flex-direction: column; padding: 0.875rem; height: auto; gap: 0.25rem; text-align: center; border-radius: 0.75rem;"
+            data-onboarding-target="complexityOption"
+            data-value="<%= opt[:value] %>"
+            data-action="click->onboarding#selectComplexity"
+            aria-pressed="<%= selected %>"
+          >
+            <span style="font-size: 0.9375rem; font-weight: 600;"><%= opt[:label] %></span>
+            <span style="font-size: 0.75rem; opacity: 0.8; font-weight: 400;"><%= opt[:desc] %></span>
+          </button>
+        <% end %>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end;">
+      <%= f.submit "Continue →",
+            class: "btn btn-primary btn-primary-lg",
+            data: { onboarding_target: "submitBtn" } %>
+    </div>
+
+  <% end %>
+</div>

@@ -1,0 +1,48 @@
+<% content_for :page_title, "Shopping Lists" %>
+<% content_for :page_subtitle, "Track what you need to buy" %>
+<% content_for :header_actions do %>
+  <%= link_to new_shopping_list_path, class: "btn btn-primary" do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+    New List
+  <% end %>
+<% end %>
+
+<% if @lists.empty? %>
+  <div class="empty-state" style="margin-top: 3rem;">
+    <div style="width: 4rem; height: 4rem; background-color: #d9f5db; border-radius: 9999px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a7425" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+    </div>
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.25rem; font-weight: 700; color: #373928; margin: 0 0 0.5rem;">No shopping lists yet</h2>
+    <p style="color: #646652; margin: 0 0 1.5rem;">Generate one from a meal plan or start a fresh list.</p>
+    <div style="display: flex; gap: 0.75rem; justify-content: center;">
+      <%= link_to "Generate from Meal Plan", meal_plans_path, class: "btn btn-primary" %>
+      <%= link_to "Start a Blank List", new_shopping_list_path, class: "btn btn-outline" %>
+    </div>
+  </div>
+
+<% else %>
+  <%# Active lists %>
+  <% if @active.any? %>
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0 0 0.875rem;">Active</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+      <% @active.each do |list| %>
+        <%= render "shopping_lists/list_card", list: list %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# Completed lists %>
+  <% if @done.any? %>
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #81826d; margin: 0 0 0.875rem;">Completed</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); gap: 1rem;">
+      <% @done.each do |list| %>
+        <%= render "shopping_lists/list_card", list: list %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

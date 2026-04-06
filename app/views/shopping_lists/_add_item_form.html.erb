@@ -1,0 +1,41 @@
+<%# Locals: list, item (nil on fresh form) %>
+<div id="add_item_form">
+  <%= form_with model: [list, item || ShoppingListItem.new],
+        data: { turbo_stream: true } do |f| %>
+
+    <% if item&.errors&.any? %>
+      <p style="font-size: 0.8125rem; color: #c22225; margin: 0 0 0.75rem;"><%= item.errors.full_messages.to_sentence %></p>
+    <% end %>
+
+    <div style="margin-bottom: 0.75rem;">
+      <%= f.label :name, "Item", class: "input-label" %>
+      <%= f.text_field :name,
+            class: "input",
+            style: "width: 100%;",
+            placeholder: "e.g. Olive oil",
+            autofocus: true,
+            value: item&.name %>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem;">
+      <div>
+        <%= f.label :quantity, "Qty", class: "input-label" %>
+        <%= f.number_field :quantity, class: "input", style: "width: 100%;", step: "any", min: 0, value: item&.quantity %>
+      </div>
+      <div>
+        <%= f.label :unit, "Unit", class: "input-label" %>
+        <%= f.text_field :unit, class: "input", style: "width: 100%;", placeholder: "oz, cup…", value: item&.unit %>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <%= f.label :category, "Category", class: "input-label" %>
+      <%= f.select :category,
+            Ingredient::CATEGORIES.map { |c| [c.humanize.titleize, c] },
+            { selected: item&.category || "pantry" },
+            class: "input", style: "width: 100%;" %>
+    </div>
+
+    <%= f.submit "Add Item", class: "btn btn-primary", style: "width: 100%;" %>
+  <% end %>
+</div>

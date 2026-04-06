@@ -1,0 +1,58 @@
+<% content_for :page_title do %>
+  Good <%= Time.current.hour < 12 ? "morning" : Time.current.hour < 17 ? "afternoon" : "evening" %>, <%= Current.user.name %>!
+<% end %>
+<% content_for :page_subtitle, Date.current.strftime("%A, %B %-d") %>
+<% content_for :header_actions do %>
+  <%= link_to new_meal_generator_path, class: "btn btn-primary" do %>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+    Generate Plan
+  <% end %>
+<% end %>
+
+<%# ── Top stats strip ──────────────────────────────────────────────────────── %>
+<%= render "dashboard/stats_strip",
+      planned_this_week: @planned_this_week,
+      cooked_this_week:  @cooked_this_week,
+      plans_count:       @plans_count,
+      lists_count:       @lists_count %>
+
+<%# ── Main two-column layout ───────────────────────────────────────────────── %>
+<div style="display: grid; grid-template-columns: 1fr 22rem; gap: 1.5rem; align-items: start;">
+
+  <%# Left column %>
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+    <%# Today's meals %>
+    <%= render "dashboard/today_meals" %>
+
+    <%# Current plan progress %>
+    <% if @current_plan %>
+      <%= render "dashboard/plan_progress" %>
+    <% end %>
+
+    <%# Active shopping list %>
+    <% if @active_list %>
+      <%= render "dashboard/shopping_preview" %>
+    <% end %>
+
+  </div>
+
+  <%# Right column %>
+  <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+    <%# Budget ring %>
+    <%= render "dashboard/budget_ring" %>
+
+    <%# Quick actions %>
+    <%= render "dashboard/quick_actions" %>
+
+    <%# Deals preview %>
+    <% if @deal_previews.any? %>
+      <%= render "dashboard/deals_preview" %>
+    <% end %>
+
+  </div>
+
+</div>

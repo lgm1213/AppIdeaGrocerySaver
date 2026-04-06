@@ -1,0 +1,9 @@
+[    1272ms] [LOG] SM: 513200: Page Qualification: 63: Log-in link found, waiting for user state... @ https://cdn.optimizely.com/js/18372160253.js:195
+[    1272ms] [LOG] SM: 513200: Page Qualification: 71: Checking for Adobe Data Layer... @ https://cdn.optimizely.com/js/18372160253.js:202
+[    1272ms] [LOG] SM: 513200: Page Qualification: 75: Checking adobeDataLayer element  0 : {event: page_top, user: Object, page: Object} @ https://cdn.optimizely.com/js/18372160253.js:208
+[    1272ms] [LOG] SM: 513200: Page Qualification: 95: User state is Unknown @ https://cdn.optimizely.com/js/18372160253.js:226
+[    1272ms] [LOG] SM: 513200: Page Qualification: 48: Activated - User state is Unknown and log-in link exists @ https://cdn.optimizely.com/js/18372160253.js:177
+[    1407ms] [LOG] SM:  455644 - Variation 1 @ https://cdn.optimizely.com/js/18372160253.js:26
+[   11435ms] [LOG] Download the Apollo DevTools for a better development experience: %s https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm @ https://assets.publixcdn.com/assets/scripts/vendors.779912505de8b641.js:43
+[  199970ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://services.publix.com/api/v1/weeklyad/savings/pagesandpromotions:0
+[  211212ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://services.publix.com/search/api/search/storeproductssavings/:0
