@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_04_232227) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_06_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -175,6 +175,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_232227) do
     t.datetime "created_at", null: false
     t.datetime "deals_fetched_at"
     t.string "name", null: false
+    t.uuid "parent_store_id"
     t.string "scrape_url"
     t.string "state"
     t.string "store_number"
@@ -182,6 +183,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_232227) do
     t.string "zip_code"
     t.index ["chain", "store_number"], name: "index_stores_on_chain_and_store_number", unique: true, where: "(store_number IS NOT NULL)"
     t.index ["chain"], name: "index_stores_on_chain"
+    t.index ["parent_store_id"], name: "index_stores_on_parent_store_id"
   end
 
   create_table "user_preferences", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -189,6 +191,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_232227) do
     t.string "city"
     t.string "cooking_skill", default: "beginner", null: false
     t.datetime "created_at", null: false
+    t.datetime "deals_last_seen_at"
     t.string "dietary_restrictions", default: [], array: true
     t.integer "household_size", default: 2, null: false
     t.boolean "include_breakfast", default: true, null: false
@@ -245,6 +248,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_232227) do
   add_foreign_key "shopping_list_items", "shopping_lists"
   add_foreign_key "shopping_lists", "meal_plans"
   add_foreign_key "shopping_lists", "users"
+  add_foreign_key "stores", "stores", column: "parent_store_id"
   add_foreign_key "user_preferences", "users"
   add_foreign_key "user_stores", "stores"
   add_foreign_key "user_stores", "users"

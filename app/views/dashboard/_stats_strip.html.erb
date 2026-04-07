@@ -1,5 +1,5 @@
-<%# Locals: planned_this_week, cooked_this_week, plans_count, lists_count %>
-<div id="dashboard_stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+<%# Locals: planned_this_week, cooked_this_week, plans_count, lists_count, weekly_deal_savings %>
+<div id="dashboard_stats" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem;">
   <%= render "dashboard/stat_card",
         label: "Meals Planned",
         value: planned_this_week,
@@ -24,4 +24,10 @@
         sub: "total",
         color: "#373928",
         bg: "#eff0d1" %>
+  <%= render "dashboard/stat_card",
+        label: "Deal Savings",
+        value: weekly_deal_savings,
+        sub: "potential this week",
+        color: "#1a7425",
+        bg: "#d9f5db" %>
 </div>

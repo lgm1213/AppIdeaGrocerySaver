@@ -178,6 +178,13 @@
         </div>
       </header>
 
+      <%# New deals notification banner %>
+      <% if new_deals_available? %>
+        <div style="padding: 1rem 0 0;">
+          <%= render "shared/deals_notification" %>
+        </div>
+      <% end %>
+
       <%# Flash messages %>
       <% if notice.present? %>
         <div style="padding: 1rem 2rem 0;" data-controller="flash">

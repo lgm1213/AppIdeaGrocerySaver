@@ -90,6 +90,7 @@ production:
     database: app_idea_grocery_saver_production
     username: app_idea_grocery_saver
     password: <%= ENV["APP_IDEA_GROCERY_SAVER_DATABASE_PASSWORD"] %>
+    host: <%= ENV.fetch("DB_HOST", "localhost") %>
   cache:
     <<: *primary_production
     database: app_idea_grocery_saver_production_cache

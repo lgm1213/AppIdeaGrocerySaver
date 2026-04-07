@@ -13,10 +13,11 @@
 
 <%# ── Top stats strip ──────────────────────────────────────────────────────── %>
 <%= render "dashboard/stats_strip",
-      planned_this_week: @planned_this_week,
-      cooked_this_week:  @cooked_this_week,
-      plans_count:       @plans_count,
-      lists_count:       @lists_count %>
+      planned_this_week:   @planned_this_week,
+      cooked_this_week:    @cooked_this_week,
+      plans_count:         @plans_count,
+      lists_count:         @lists_count,
+      weekly_deal_savings: @weekly_deal_savings %>
 
 <%# ── Main two-column layout ───────────────────────────────────────────────── %>
 <div style="display: grid; grid-template-columns: 1fr 22rem; gap: 1.5rem; align-items: start;">

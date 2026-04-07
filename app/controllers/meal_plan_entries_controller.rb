@@ -123,12 +123,15 @@ class MealPlanEntriesController < ApplicationController
   end
 
   def dashboard_stats_locals
-    user = Current.user
+    user       = Current.user
+    recipe_ids = @meal_plan.meal_plan_entries.filled.pluck(:recipe_id)
+    savings    = Deal.savings_by_recipe(stores: user.stores, recipe_ids: recipe_ids).values.sum
     {
-      planned_this_week: @meal_plan.total_recipes,
-      cooked_this_week:  @meal_plan.cooked_count,
-      plans_count:       user.meal_plans.count,
-      lists_count:       user.shopping_lists.count
+      planned_this_week:   @meal_plan.total_recipes,
+      cooked_this_week:    @meal_plan.cooked_count,
+      plans_count:         user.meal_plans.count,
+      lists_count:         user.shopping_lists.count,
+      weekly_deal_savings: savings > 0 ? format("$%.2f", savings) : "—"
     }
   end
 end

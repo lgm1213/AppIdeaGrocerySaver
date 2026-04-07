@@ -1,6 +1,10 @@
 module Scrapers
   class PublixScraper
-    WEEKLY_AD_URL  = "https://www.publix.com/savings/weekly-ad/view-all".freeze
+    # Fallback used only when the store record has no scrape_url set.
+    DEFAULT_URL    = "https://www.publix.com/savings/weekly-ad/view-all".freeze
+    # TODO: Per-store URL format is not yet confirmed. When discovered, set
+    #       store.scrape_url = "https://www.publix.com/savings/weekly-ad/{store_number}"
+    #       and the scraper will automatically use it.
     CARD_SELECTOR  = '[data-qa="savings-weekly-card"]'.freeze
     LOAD_WAIT_SECS = 15
 
@@ -19,7 +23,7 @@ module Scrapers
 
     def scrape
       browser = Ferrum::Browser.new(headless: true, timeout: 60)
-      browser.goto(WEEKLY_AD_URL)
+      browser.goto(@store.scrape_url || DEFAULT_URL)
 
       # Wait for at least one deal card to appear, then give the rest time to render
       browser.network.wait_for_idle(duration: 2, timeout: 20) rescue nil

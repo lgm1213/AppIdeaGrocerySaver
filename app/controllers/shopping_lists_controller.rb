@@ -73,7 +73,8 @@ class ShoppingListsController < ApplicationController
     stores = Current.user.stores
     return {} if stores.empty?
 
-    Deal.where(store: stores, ingredient_id: ingredient_ids)
+    Deal.for_user_stores(stores)
+        .where(ingredient_id: ingredient_ids)
         .active
         .index_by(&:ingredient_id)
   end

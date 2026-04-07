@@ -38,6 +38,10 @@ class DashboardController < ApplicationController
     @lists_count       = user.shopping_lists.count
     @cooked_this_week  = @current_plan&.cooked_count || 0
     @planned_this_week = @current_plan&.total_recipes || 0
+
+    # Potential savings this week from deals matching the current plan's recipes
+    total = weekly_deal_savings_total(user)
+    @weekly_deal_savings = total > 0 ? format("$%.2f", total) : "—"
   end
 
   private
@@ -46,6 +50,15 @@ class DashboardController < ApplicationController
     stores = user.stores
     return [] if stores.empty?
 
-    Deal.where(store: stores).active.order(savings_amount: :desc).limit(3)
+    Deal.for_user_stores(stores).active.order(savings_amount: :desc).limit(3)
+  end
+
+  def weekly_deal_savings_total(user)
+    return 0 unless @current_plan
+
+    recipe_ids = @current_plan.meal_plan_entries.filled.pluck(:recipe_id)
+    return 0 if recipe_ids.empty?
+
+    Deal.savings_by_recipe(stores: user.stores, recipe_ids: recipe_ids).values.sum
   end
 end

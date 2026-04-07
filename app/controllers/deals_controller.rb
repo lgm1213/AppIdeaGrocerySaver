@@ -10,6 +10,8 @@ class DealsController < ApplicationController
     @by_category  = base.group_by(&:category)
     @bogo_deals   = base.select { |d| d.deal_type == "bogo" }
     @matched      = matched_deals(base)
+
+    Current.user.user_preference&.update!(deals_last_seen_at: Time.current)
   end
 
   def show; end
@@ -26,7 +28,7 @@ class DealsController < ApplicationController
     stores = Current.user.stores
     return Deal.none if stores.empty?
 
-    Deal.where(store: stores).active.order(savings_amount: :desc)
+    Deal.for_user_stores(stores).active.order(savings_amount: :desc)
   end
 
   def matched_deals(deals)

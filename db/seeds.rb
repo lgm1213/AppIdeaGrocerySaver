@@ -672,15 +672,22 @@ miami_publix_locations = [
   { name: "Publix — Cutler Bay",         address: "10710 Caribbean Blvd",  city: "Cutler Bay",       zip_code: "33189", store_number: "1103" }
 ]
 
+# Individual Miami stores inherit deals from the chain-wide parent.
+# scrape_url is nil until Publix exposes a per-store URL format.
+# TODO: when per-store URL is confirmed, set scrape_url to e.g.
+#       "https://www.publix.com/savings/weekly-ad/{store_number}"
 miami_publix_locations.each do |attrs|
-  Store.find_or_create_by!(chain: "publix", store_number: attrs[:store_number]) do |s|
-    s.name       = attrs[:name]
-    s.address    = attrs[:address]
-    s.city       = attrs[:city]
-    s.state      = "FL"
-    s.zip_code   = attrs[:zip_code]
-    s.scrape_url = "https://www.publix.com/savings/weekly-ad/view-all"
-  end
+  store = Store.find_or_initialize_by(chain: "publix", store_number: attrs[:store_number])
+  store.assign_attributes(
+    name:           attrs[:name],
+    address:        attrs[:address],
+    city:           attrs[:city],
+    state:          "FL",
+    zip_code:       attrs[:zip_code],
+    parent_store:   publix,
+    scrape_url:     nil
+  )
+  store.save!
 end
 
 puts "  → #{Store.where(chain: 'publix').count} Publix store records total"

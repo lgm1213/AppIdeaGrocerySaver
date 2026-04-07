@@ -1,119 +1,91 @@
-# Name of your application. Used to uniquely configure containers.
-service: app_idea_grocery_saver
+# ─────────────────────────────────────────────────────────────────────────────
+# GrocerySaver — Kamal deploy config
+#
+# TODO items before first real deploy:
+#   1. Replace YOUR_DOCKERHUB_USER with your Docker Hub username
+#   2. Replace YOUR_SERVER_IP with the VPS public IP
+#   3. Replace YOUR_DOMAIN with the app domain (e.g. grocerysaver.app)
+#   4. Uncomment the proxy block once DNS + SSL cert is ready
+#   5. Change ssh.user from root to a hardened deploy user
+#   6. Add KAMAL_REGISTRY_PASSWORD + POSTGRES_PASSWORD to your secrets manager
+# ─────────────────────────────────────────────────────────────────────────────
 
-# Name of the container image (use your-user/app-name on external registries).
-image: app_idea_grocery_saver
+service: grocery_saver
+image: YOUR_DOCKERHUB_USER/grocery_saver
 
-# Deploy to these servers.
+# ── Servers ───────────────────────────────────────────────────────────────────
 servers:
   web:
-    - 192.168.0.1
-  # job:
-  #   hosts:
-  #     - 192.168.0.1
-  #   cmd: bin/jobs
+    - YOUR_SERVER_IP
+  job:
+    hosts:
+      - YOUR_SERVER_IP
+    cmd: bin/jobs
 
-# Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
-# If used with Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
-#
-# Using an SSL proxy like this requires turning on config.assume_ssl and config.force_ssl in production.rb!
-#
-# Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
+# ── SSL / Proxy ───────────────────────────────────────────────────────────────
+# Uncomment once domain DNS points to the server and you want Let's Encrypt SSL.
+# Also enable config.assume_ssl and config.force_ssl in config/environments/production.rb.
 #
 # proxy:
 #   ssl: true
-#   host: app.example.com
+#   host: YOUR_DOMAIN   # e.g. grocerysaver.app
 
-# Where you keep your container images.
+# ── Registry ──────────────────────────────────────────────────────────────────
 registry:
-  # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: localhost:5555
+  server: docker.io
+  username: YOUR_DOCKERHUB_USER
+  password:
+    - KAMAL_REGISTRY_PASSWORD
 
-  # Needed for authenticated registries.
-  # username: your-user
-
-  # Always use an access token rather than real password when possible.
-  # password:
-  #   - KAMAL_REGISTRY_PASSWORD
-
-# Inject ENV variables into containers (secrets come from .kamal/secrets).
+# ── Environment ───────────────────────────────────────────────────────────────
 env:
   secret:
     - RAILS_MASTER_KEY
+    - APP_IDEA_GROCERY_SAVER_DATABASE_PASSWORD
   clear:
-    # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
-    # When you start using multiple servers, you should split out job processing to a dedicated machine.
-    SOLID_QUEUE_IN_PUMA: true
+    # Solid Queue runs in the dedicated `job` server above — not in Puma.
+    SOLID_QUEUE_IN_PUMA: false
+    # Points the app at the Kamal-managed Postgres accessory.
+    DB_HOST: grocery_saver-db
+    RAILS_LOG_LEVEL: info
+    # TODO: replace with real domain
+    APP_HOST: YOUR_DOMAIN
 
-    # Set number of processes dedicated to Solid Queue (default: 1)
-    # JOB_CONCURRENCY: 3
+# ── SSH ───────────────────────────────────────────────────────────────────────
+# TODO: switch to a non-root deploy user once server is hardened
+ssh:
+  user: root
 
-    # Set number of cores available to the application on each server (default: 1).
-    # WEB_CONCURRENCY: 2
-
-    # Match this to any external database server to configure Active Record correctly
-    # Use app_idea_grocery_saver-db for a db accessory server on same machine via local kamal docker network.
-    # DB_HOST: 192.168.0.2
-
-    # Log everything from Rails
-    # RAILS_LOG_LEVEL: debug
-
-# Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
-# "bin/kamal logs -r job" will tail logs from the first server in the job section.
+# ── Aliases ───────────────────────────────────────────────────────────────────
 aliases:
   console: app exec --interactive --reuse "bin/rails console"
-  shell: app exec --interactive --reuse "bash"
-  logs: app logs -f
-  dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
+  shell:   app exec --interactive --reuse "bash"
+  logs:    app logs -f
+  dbc:     app exec --interactive --reuse "bin/rails dbconsole --include-password"
 
-# Use a persistent storage volume for sqlite database files and local Active Storage files.
-# Recommended to change this to a mounted volume path that is backed up off server.
+# ── Volumes ───────────────────────────────────────────────────────────────────
 volumes:
-  - "app_idea_grocery_saver_storage:/rails/storage"
+  - "grocery_saver_storage:/rails/storage"
 
-# Bridge fingerprinted assets, like JS and CSS, between versions to avoid
-# hitting 404 on in-flight requests. Combines all files from new and old
-# version inside the asset_path.
 asset_path: /rails/public/assets
 
-# Configure the image builder.
+# ── Builder ───────────────────────────────────────────────────────────────────
 builder:
   arch: amd64
+  # TODO: uncomment to speed up amd64 builds from an Apple Silicon laptop
+  # remote: ssh://docker@YOUR_BUILD_SERVER_IP
 
-  # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
-  # remote: ssh://docker@docker-builder-server
-  #
-  # # Pass arguments and secrets to the Docker build process
-  # args:
-  #   RUBY_VERSION: 3.4.7
-  # secrets:
-  #   - GITHUB_TOKEN
-  #   - RAILS_MASTER_KEY
-
-# Use a different ssh user than root
-# ssh:
-#   user: app
-
-# Use accessory services (secrets come from .kamal/secrets).
-# accessories:
-#   db:
-#     image: mysql:8.0
-#     host: 192.168.0.2
-#     # Change to 3306 to expose port to the world instead of just local network.
-#     port: "127.0.0.1:3306:3306"
-#     env:
-#       clear:
-#         MYSQL_ROOT_HOST: '%'
-#       secret:
-#         - MYSQL_ROOT_PASSWORD
-#     files:
-#       - config/mysql/production.cnf:/etc/mysql/my.cnf
-#       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
-#     directories:
-#       - data:/var/lib/mysql
-#   redis:
-#     image: valkey/valkey:8
-#     host: 192.168.0.2
-#     port: 6379
-#     directories:
-#       - data:/data
+# ── Accessories ───────────────────────────────────────────────────────────────
+accessories:
+  db:
+    image: postgres:16
+    host: YOUR_SERVER_IP
+    port: "127.0.0.1:5432:5432"
+    env:
+      clear:
+        POSTGRES_USER: app_idea_grocery_saver
+        POSTGRES_DB:   app_idea_grocery_saver_production
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data

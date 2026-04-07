@@ -28,6 +28,10 @@ Rails.application.routes.draw do
     get  :success,         to: "steps#success"
   end
 
+  # ── Notifications ─────────────────────────────────────────────────────────
+  patch "/notifications/dismiss_deals", to: "notifications#dismiss_deals",
+                                        as: :dismiss_deals_notification
+
   # ── Authenticated app (/app scope) ────────────────────────────────────────
   scope "/app" do
     get "/", to: "dashboard#index", as: :dashboard
