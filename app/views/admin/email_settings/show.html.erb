@@ -1,0 +1,51 @@
+<% content_for :page_title, "Email / SMTP Settings" %>
+<% content_for :page_subtitle, "Outbound mail configuration for password reset and notifications" %>
+<% content_for :header_actions do %>
+  <%= link_to "Edit Settings", edit_admin_email_settings_path,
+        style: "background: #1a7425; color: #fff; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; text-decoration: none;" %>
+<% end %>
+
+<div style="max-width: 640px;">
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; overflow: hidden;">
+
+    <% if SystemSetting.smtp_configured? %>
+      <div style="padding: 1rem 1.5rem; background: #f0fdf4; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+        <span class="admin-badge admin-badge-green">Configured</span>
+        <span style="font-size: 0.8125rem; color: #15803d;">SMTP settings are active. Changes apply immediately without a server restart.</span>
+      </div>
+    <% else %>
+      <div style="padding: 1rem 1.5rem; background: #fef9c3; border-bottom: 1px solid #fde68a; display: flex; align-items: center; gap: 0.5rem;">
+        <span class="admin-badge admin-badge-yellow">Not configured</span>
+        <span style="font-size: 0.8125rem; color: #854d0e;">Password reset emails will not deliver until SMTP is set up.</span>
+      </div>
+    <% end %>
+
+    <dl style="padding: 0;">
+      <% labels = {
+        "smtp_address"              => "SMTP Host",
+        "smtp_port"                 => "Port",
+        "smtp_domain"               => "Domain",
+        "smtp_username"             => "Username",
+        "smtp_password"             => "Password",
+        "smtp_authentication"       => "Authentication",
+        "smtp_enable_starttls_auto" => "STARTTLS",
+        "smtp_from_address"         => "From Address"
+      } %>
+      <% labels.each_with_index do |(key, label), i| %>
+        <div style="display: flex; padding: 0.875rem 1.5rem; <%= i.odd? ? 'background: #f9fafb;' : '' %>">
+          <dt style="width: 11rem; flex-shrink: 0; font-size: 0.8125rem; font-weight: 600; color: #6b7280;"><%= label %></dt>
+          <dd style="font-size: 0.875rem; color: #111827; margin: 0;">
+            <% val = @settings[key] %>
+            <% if val.blank? %>
+              <span style="color: #9ca3af; font-style: italic;">not set</span>
+            <% elsif key == "smtp_password" %>
+              <span style="letter-spacing: 0.1em;">••••••••</span>
+            <% else %>
+              <%= val %>
+            <% end %>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  </div>
+</div>

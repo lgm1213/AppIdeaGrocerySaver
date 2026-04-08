@@ -1,0 +1,53 @@
+<% content_for :page_title, "Background Jobs" %>
+<% content_for :page_subtitle, "Manually trigger operational jobs" %>
+<% content_for :header_actions do %>
+  <span style="font-size: 0.75rem; color: #9ca3af; display: flex; align-items: center; gap: 0.375rem;">
+    <span style="width: 7px; height: 7px; background: #22c55e; border-radius: 50%; display: inline-block; animation: pulse 2s ease-in-out infinite;"></span>
+    Live · refreshes every 3s
+  </span>
+  <%= link_to "Job History →", admin_job_executions_path,
+        style: "background: #f3f4f6; color: #374151; border-radius: 0.5rem; padding: 0.5rem 0.875rem; font-size: 0.8125rem; font-weight: 600; text-decoration: none;" %>
+<% end %>
+
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 2rem;">
+  <% @jobs.each do |key, config| %>
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
+      <div>
+        <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem;"><%= config[:label] %></h3>
+        <p style="font-size: 0.8125rem; color: #6b7280; margin: 0; line-height: 1.5;"><%= config[:description] %></p>
+        <p style="font-size: 0.75rem; color: #9ca3af; margin: 0.5rem 0 0; font-family: monospace;"><%= config[:job].name %></p>
+      </div>
+      <%= button_to admin_jobs_path, method: :post, params: { job_key: key },
+            style: "background: #1a7425; color: #fff; border: none; border-radius: 0.5rem; padding: 0.625rem 1rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%;" do %>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        Enqueue Now
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<%# ── Live Activity ──────────────────────────────────────────────────────── %>
+<div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem;"
+     data-controller="poll"
+     data-poll-src-value="<%= status_admin_jobs_path %>"
+     data-poll-interval-value="3000">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #111827; margin: 0;">Job Activity</h2>
+  </div>
+  <%= render "activity" %>
+</div>
+
+<%# ── Scheduled Jobs ──────────────────────────────────────────────────────── %>
+<div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+  <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0 0 1rem;">Scheduled Jobs</h2>
+  <div style="background: #f9fafb; border-radius: 0.5rem; padding: 1rem; font-size: 0.875rem; color: #374151;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+      <span style="font-family: monospace; background: #e5e7eb; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.8125rem;">0 8 * * 3</span>
+      <span style="font-weight: 600;">Full Deal Pipeline</span>
+      <span class="admin-badge admin-badge-green" style="margin-left: auto;">Active</span>
+    </div>
+    <p style="font-size: 0.8125rem; color: #6b7280; margin: 0;">Runs every Wednesday at 8:00 AM — fetches Publix weekly ad and matches ingredients. Configured in <code style="background: #f3f4f6; padding: 0.1rem 0.35rem; border-radius: 3px;">config/recurring.yml</code>.</p>
+  </div>
+</div>

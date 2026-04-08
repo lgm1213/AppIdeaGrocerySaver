@@ -1,0 +1,195 @@
+<% status = job_execution_status(@job) %>
+<% content_for :page_title, @job.class_name.demodulize %>
+<% content_for :page_subtitle, "Job ##{@job.id} · #{@job.queue_name} queue" %>
+<% content_for :header_actions do %>
+  <%= link_to "← Job History", admin_job_executions_path,
+        style: "font-size: 0.875rem; color: #6b7280; text-decoration: none; font-weight: 500;" %>
+<% end %>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+
+  <%# ── Left column ──────────────────────────────────────────────── %>
+  <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+    <%# Status + class -%>
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <%= render partial: "status_badge", locals: { status: status } %>
+        <h2 style="font-family: monospace; font-size: 1rem; font-weight: 700; color: #111827; margin: 0;">
+          <%= @job.class_name %>
+        </h2>
+      </div>
+
+      <dl style="display: grid; grid-template-columns: 9rem 1fr; gap: 0.5rem 1rem; font-size: 0.875rem;">
+        <dt style="color: #6b7280; font-weight: 600;">Active Job ID</dt>
+        <dd style="font-family: monospace; color: #374151; margin: 0;"><%= @job.active_job_id || "—" %></dd>
+
+        <dt style="color: #6b7280; font-weight: 600;">Queue</dt>
+        <dd style="margin: 0;"><span class="admin-badge admin-badge-gray"><%= @job.queue_name %></span></dd>
+
+        <dt style="color: #6b7280; font-weight: 600;">Priority</dt>
+        <dd style="color: #374151; margin: 0;"><%= @job.priority %></dd>
+
+        <dt style="color: #6b7280; font-weight: 600;">Enqueued</dt>
+        <dd style="color: #374151; margin: 0;"><%= @job.created_at.strftime("%b %-d %Y, %H:%M:%S") %> (<%= time_ago_in_words(@job.created_at) %> ago)</dd>
+
+        <% if @job.scheduled_at %>
+          <dt style="color: #6b7280; font-weight: 600;">Scheduled</dt>
+          <dd style="color: #374151; margin: 0;"><%= @job.scheduled_at.strftime("%b %-d %Y, %H:%M:%S") %></dd>
+        <% end %>
+
+        <% if @job.finished_at %>
+          <dt style="color: #6b7280; font-weight: 600;">Finished</dt>
+          <dd style="color: #374151; margin: 0;"><%= @job.finished_at.strftime("%b %-d %Y, %H:%M:%S") %></dd>
+
+          <dt style="color: #6b7280; font-weight: 600;">Duration</dt>
+          <dd style="font-weight: 600; color: #15803d; margin: 0;">
+            <% secs = (@job.finished_at - @job.created_at).round %>
+            <%= secs >= 60 ? "#{secs / 60}m #{secs % 60}s" : "#{secs}s" %>
+          </dd>
+        <% end %>
+
+        <% if @claimed %>
+          <dt style="color: #6b7280; font-weight: 600;">Claimed at</dt>
+          <dd style="color: #374151; margin: 0;"><%= @claimed.created_at.strftime("%H:%M:%S") %> (<%= time_ago_in_words(@claimed.created_at) %> ago)</dd>
+
+          <% if @claimed.process %>
+            <dt style="color: #6b7280; font-weight: 600;">Worker</dt>
+            <dd style="color: #374151; margin: 0; font-family: monospace; font-size: 0.8125rem;">
+              <%= @claimed.process.hostname %> · PID <%= @claimed.process.pid %>
+            </dd>
+          <% end %>
+        <% end %>
+      </dl>
+    </div>
+
+    <%# Arguments -%>
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+      <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0 0 0.875rem;">Arguments</h3>
+      <% if @arguments.blank? || (@arguments.keys == ["arguments"] && @arguments["arguments"].blank?) %>
+        <p style="font-size: 0.875rem; color: #9ca3af; margin: 0;">No arguments.</p>
+      <% else %>
+        <pre style="background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; font-size: 0.8125rem; font-family: monospace; overflow-x: auto; margin: 0; color: #374151; white-space: pre-wrap; word-break: break-all;"><%= JSON.pretty_generate(@arguments) %></pre>
+      <% end %>
+    </div>
+
+    <%# Error details (failed jobs) -%>
+    <% if @failed %>
+      <% error = JSON.parse(@failed.error) rescue { "message" => @failed.error, "backtrace" => [] } %>
+      <div style="background: #fff; border: 1px solid #fecaca; border-radius: 0.75rem; overflow: hidden;">
+        <div style="background: #fef2f2; padding: 1rem 1.5rem; border-bottom: 1px solid #fecaca; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #b91c1c; margin: 0 0 0.25rem;">
+              <%= error["exception_class"] || "Error" %>
+            </h3>
+            <p style="font-size: 0.875rem; color: #dc2626; margin: 0;"><%= error["message"] %></p>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-shrink: 0; margin-left: 1rem;">
+            <%= button_to retry_admin_job_execution_path(@job), method: :post,
+                  style: "background: #1a7425; color: #fff; border: none; border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer;" do %>
+              Retry Job
+            <% end %>
+            <%= button_to admin_job_execution_path(@job), method: :delete,
+                  data: { confirm: "Discard this job permanently?" },
+                  style: "background: #fff; color: #b91c1c; border: 1px solid #fecaca; border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer;" do %>
+              Discard
+            <% end %>
+          </div>
+        </div>
+        <% if error["backtrace"].present? %>
+          <div style="padding: 1rem 1.5rem;">
+            <p style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.625rem;">Backtrace</p>
+            <pre style="background: #1e2318; color: #c8caa8; border-radius: 0.5rem; padding: 1rem; font-size: 0.75rem; font-family: monospace; overflow-x: auto; margin: 0; white-space: pre; line-height: 1.6; max-height: 20rem; overflow-y: auto;"><% Array(error["backtrace"]).each do |line| %>
+<% app_line = line.include?(Rails.root.to_s) %>
+<span style="color: <%= app_line ? '#86efac' : '#6b7a5c' %>; <%= app_line ? 'font-weight: 600;' : '' %>"><%= line.gsub(Rails.root.to_s + "/", "") %></span>
+<% end %></pre>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+  </div>
+
+  <%# ── Right column — timeline ──────────────────────────────────── %>
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+    <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0 0 1.25rem;">Timeline</h3>
+
+    <div style="display: flex; flex-direction: column; gap: 0;">
+
+      <%# Enqueued %>
+      <div style="display: flex; gap: 0.875rem; padding-bottom: 1.25rem; position: relative;">
+        <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+          <div style="width: 10px; height: 10px; background: #1a7425; border-radius: 50%; margin-top: 0.125rem;"></div>
+          <div style="width: 2px; flex: 1; background: #e5e7eb; margin-top: 0.25rem;"></div>
+        </div>
+        <div>
+          <p style="font-size: 0.8125rem; font-weight: 600; color: #374151; margin: 0;">Enqueued</p>
+          <p style="font-size: 0.75rem; color: #6b7280; margin: 0.125rem 0 0;"><%= @job.created_at.strftime("%H:%M:%S.%3N") %></p>
+        </div>
+      </div>
+
+      <%# Scheduled (if applicable) %>
+      <% if @job.scheduled_at && @job.scheduled_at > @job.created_at %>
+        <div style="display: flex; gap: 0.875rem; padding-bottom: 1.25rem;">
+          <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+            <div style="width: 10px; height: 10px; background: #a855f7; border-radius: 50%; margin-top: 0.125rem;"></div>
+            <div style="width: 2px; flex: 1; background: #e5e7eb; margin-top: 0.25rem;"></div>
+          </div>
+          <div>
+            <p style="font-size: 0.8125rem; font-weight: 600; color: #374151; margin: 0;">Scheduled for</p>
+            <p style="font-size: 0.75rem; color: #6b7280; margin: 0.125rem 0 0;"><%= @job.scheduled_at.strftime("%H:%M:%S.%3N") %></p>
+          </div>
+        </div>
+      <% end %>
+
+      <%# Claimed / Started %>
+      <% if @claimed || @job.finished_at || @failed %>
+        <% started_at = @claimed&.created_at || @job.finished_at || @failed&.created_at %>
+        <div style="display: flex; gap: 0.875rem; padding-bottom: 1.25rem;">
+          <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+            <div style="width: 10px; height: 10px; background: #3b82f6; border-radius: 50%; margin-top: 0.125rem;"></div>
+            <div style="width: 2px; flex: 1; background: #e5e7eb; margin-top: 0.25rem;"></div>
+          </div>
+          <div>
+            <p style="font-size: 0.8125rem; font-weight: 600; color: #374151; margin: 0;">Started</p>
+            <p style="font-size: 0.75rem; color: #6b7280; margin: 0.125rem 0 0;"><%= started_at&.strftime("%H:%M:%S.%3N") || "—" %></p>
+          </div>
+        </div>
+      <% end %>
+
+      <%# Finished / Failed %>
+      <div style="display: flex; gap: 0.875rem;">
+        <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+          <div style="width: 10px; height: 10px; background: <%= @failed ? '#ef4444' : (@job.finished_at ? '#22c55e' : '#d1d5db') %>; border-radius: 50%; margin-top: 0.125rem;"></div>
+        </div>
+        <div>
+          <% if @failed %>
+            <p style="font-size: 0.8125rem; font-weight: 600; color: #b91c1c; margin: 0;">Failed</p>
+            <p style="font-size: 0.75rem; color: #6b7280; margin: 0.125rem 0 0;"><%= @failed.created_at.strftime("%H:%M:%S.%3N") %></p>
+          <% elsif @job.finished_at %>
+            <p style="font-size: 0.8125rem; font-weight: 600; color: #15803d; margin: 0;">Completed</p>
+            <p style="font-size: 0.75rem; color: #6b7280; margin: 0.125rem 0 0;"><%= @job.finished_at.strftime("%H:%M:%S.%3N") %></p>
+          <% else %>
+            <p style="font-size: 0.8125rem; font-weight: 600; color: #9ca3af; margin: 0;">Pending&hellip;</p>
+          <% end %>
+        </div>
+      </div>
+
+    </div>
+
+    <% if @job.finished_at && !@failed %>
+      <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f3f4f6; text-align: center;">
+        <% secs = (@job.finished_at - @job.created_at).round(2) %>
+        <p style="font-size: 0.75rem; color: #6b7280; margin: 0 0 0.25rem;">Total duration</p>
+        <p style="font-size: 1.25rem; font-weight: 800; color: #15803d; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif;">
+          <%= secs >= 60 ? "#{(secs / 60).floor}m #{(secs % 60).round}s" : "#{secs}s" %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+</div>
+
+<style>
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+</style>

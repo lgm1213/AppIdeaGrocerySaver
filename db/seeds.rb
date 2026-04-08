@@ -620,7 +620,10 @@ if Rails.env.development?
     u.display_name        = "Demo User"
     u.onboarding_complete = true
     u.onboarding_step     = "complete"
+    u.admin               = false
   end
+  # Ensure existing demo user has admin flag
+  demo.update!(admin: true) unless demo.admin?
 
   unless demo.user_preference
     demo.create_user_preference!(
@@ -640,6 +643,37 @@ if Rails.env.development?
   end
 
   puts "  → demo@saveandsavor.com / password1234"
+
+  puts "👤  Seeding admin user…"
+
+  demo = User.find_or_create_by!(email_address: "admin@example.com") do |u|
+    u.password            = "password1234"
+    u.display_name        = "Admin User"
+    u.onboarding_complete = true
+    u.onboarding_step     = "complete"
+    u.admin               = true
+  end
+  # Ensure existing demo user has admin flag
+  demo.update!(admin: true) unless demo.admin?
+
+  unless demo.user_preference
+    demo.create_user_preference!(
+      dietary_restrictions:  [],
+      preferred_cuisines:    %w[american mexican latin asian],
+      household_size:        4,
+      cooking_skill:         "intermediate",
+      weekly_budget:         200,
+      zip_code:              "33131",
+      preferred_store:       "Publix",
+      meals_per_week:        14,
+      meal_complexity:       "moderate",
+      include_breakfast:     true,
+      include_lunch:         true,
+      include_dinner:        true
+    )
+  end
+
+  puts "  → admin@example.com / password1234"
 end
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -1,0 +1,79 @@
+<% content_for :page_title, "Job History" %>
+<% content_for :page_subtitle, "All job executions — last 100 per filter" %>
+<% content_for :header_actions do %>
+  <%= link_to admin_jobs_path, style: "font-size: 0.875rem; color: #6b7280; text-decoration: none; font-weight: 500;" do %>
+    ← Back to Jobs
+  <% end %>
+<% end %>
+
+<%# ── Status filter tabs ──────────────────────────────────────────────── %>
+<div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+  <% filters = [
+    ["all",       "All",       @counts[:all]],
+    ["running",   "Running",   @counts[:running]],
+    ["queued",    "Queued",    @counts[:queued]],
+    ["completed", "Completed", @counts[:completed]],
+    ["failed",    "Failed",    @counts[:failed]]
+  ] %>
+  <% filters.each do |key, label, count| %>
+    <%= link_to admin_job_executions_path(status: key == "all" ? nil : key),
+          style: "display: flex; align-items: center; gap: 0.375rem; padding: 0.4rem 0.875rem; border-radius: 9999px; font-size: 0.8125rem; font-weight: 600; text-decoration: none; border: 1px solid #{@status_filter == key ? '#1a7425' : '#e5e7eb'}; background: #{@status_filter == key ? '#1a7425' : '#fff'}; color: #{@status_filter == key ? '#fff' : '#374151'};" do %>
+      <%= label %>
+      <span style="background: <%= @status_filter == key ? 'rgba(255,255,255,0.25)' : '#f3f4f6' %>; color: <%= @status_filter == key ? '#fff' : '#6b7280' %>; padding: 0.1rem 0.4rem; border-radius: 9999px; font-size: 0.7rem;">
+        <%= count %>
+      </span>
+    <% end %>
+  <% end %>
+</div>
+
+<%# ── Table ───────────────────────────────────────────────────────────── %>
+<div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; overflow: hidden;">
+  <% if @jobs.any? %>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Job</th>
+          <th>Queue</th>
+          <th>Status</th>
+          <th>Enqueued</th>
+          <th>Duration</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @jobs.each do |job| %>
+          <% status = job_execution_status(job) %>
+          <tr>
+            <td>
+              <div style="font-family: monospace; font-size: 0.8125rem; font-weight: 600; color: #111827;"><%= job.class_name.demodulize %></div>
+              <div style="font-size: 0.7rem; color: #9ca3af; margin-top: 0.125rem;">ID: <%= job.id %></div>
+            </td>
+            <td><span class="admin-badge admin-badge-gray"><%= job.queue_name %></span></td>
+            <td><%= render partial: "status_badge", locals: { status: status } %></td>
+            <td style="color: #6b7280; font-size: 0.8125rem;"><%= job.created_at.strftime("%b %-d %H:%M:%S") %></td>
+            <td style="font-size: 0.8125rem; color: #374151;">
+              <% if job.finished_at %>
+                <% secs = (job.finished_at - job.created_at).round %>
+                <%= secs >= 60 ? "#{secs / 60}m #{secs % 60}s" : "#{secs}s" %>
+              <% elsif job.claimed_execution %>
+                <span style="color: #3b82f6;">
+                  <%= time_ago_in_words(job.claimed_execution.created_at) %>&hellip;
+                </span>
+              <% else %>
+                —
+              <% end %>
+            </td>
+            <td>
+              <%= link_to "View →", admin_job_execution_path(job),
+                    style: "font-size: 0.8125rem; color: #1a7425; font-weight: 600; text-decoration: none;" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div style="padding: 3rem; text-align: center; color: #9ca3af; font-size: 0.875rem;">
+      No jobs found<%= @status_filter != "all" ? " with status \"#{@status_filter}\"" : "" %>.
+    </div>
+  <% end %>
+</div>

@@ -28,6 +28,25 @@ Rails.application.routes.draw do
     get  :success,         to: "steps#success"
   end
 
+  # ── Admin ─────────────────────────────────────────────────────────────────
+  namespace :admin do
+    root to: "dashboard#index"
+    resources :users, only: [ :index, :show ] do
+      member do
+        patch :toggle_admin
+        patch :reset_onboarding
+      end
+    end
+    resources :jobs, only: [ :index, :create ] do
+      collection { get :status }
+    end
+    resources :job_executions, only: [ :index, :show, :destroy ] do
+      member { post :retry }
+    end
+    resource  :system_health, only: [ :show ], controller: "system_health"
+    resource  :email_settings, only: [ :show, :edit, :update ]
+  end
+
   # ── Notifications ─────────────────────────────────────────────────────────
   patch "/notifications/dismiss_deals", to: "notifications#dismiss_deals",
                                         as: :dismiss_deals_notification

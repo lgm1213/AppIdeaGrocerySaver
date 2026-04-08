@@ -1,0 +1,13 @@
+<% styles = {
+  running:   { bg: "#dbeafe", color: "#1d4ed8", dot: "#3b82f6", label: "Running",   pulse: true  },
+  queued:    { bg: "#fef9c3", color: "#854d0e", dot: "#eab308", label: "Queued",    pulse: false },
+  completed: { bg: "#dcfce7", color: "#15803d", dot: "#22c55e", label: "Completed", pulse: false },
+  failed:    { bg: "#fee2e2", color: "#b91c1c", dot: "#ef4444", label: "Failed",    pulse: false },
+  scheduled: { bg: "#f3e8ff", color: "#7e22ce", dot: "#a855f7", label: "Scheduled", pulse: false },
+  unknown:   { bg: "#f3f4f6", color: "#6b7280", dot: "#9ca3af", label: "Unknown",   pulse: false }
+} %>
+<% s = styles[status] || styles[:unknown] %>
+<span style="display: inline-flex; align-items: center; gap: 0.3rem; background: <%= s[:bg] %>; color: <%= s[:color] %>; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">
+  <span style="width: 6px; height: 6px; background: <%= s[:dot] %>; border-radius: 50%; flex-shrink: 0; <%= s[:pulse] ? 'animation: pulse 1.5s ease-in-out infinite;' : '' %>"></span>
+  <%= s[:label] %>
+</span>

@@ -1,0 +1,138 @@
+<% content_for :page_title, "System Health" %>
+<% content_for :page_subtitle, "Live diagnostics — refreshed on page load" %>
+
+<%# ── Runtime ─────────────────────────────────────────────────────── %>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+
+  <div class="admin-stat-card">
+    <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.375rem;">Database</p>
+    <% if @db_connected %>
+      <span class="admin-badge admin-badge-green">Connected</span>
+    <% else %>
+      <span class="admin-badge admin-badge-red">Unreachable</span>
+    <% end %>
+  </div>
+
+  <div class="admin-stat-card">
+    <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.375rem;">Environment</p>
+    <span class="admin-badge admin-badge-gray"><%= @rails_env %></span>
+  </div>
+
+  <div class="admin-stat-card">
+    <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.375rem;">Ruby</p>
+    <span style="font-size: 0.875rem; font-weight: 600; color: #374151;"><%= @ruby_version %></span>
+  </div>
+
+  <div class="admin-stat-card">
+    <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.375rem;">Rails</p>
+    <span style="font-size: 0.875rem; font-weight: 600; color: #374151;"><%= @rails_version %></span>
+  </div>
+
+</div>
+
+<%# ── Data Stats ──────────────────────────────────────────────────── %>
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+
+  <%# Deals %>
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem;">
+    <h3 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.875rem;">Deals</h3>
+    <dl style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <% [
+        ["Total",   @deals[:total]],
+        ["Active",  @deals[:active]],
+        ["Matched to ingredients", @deals[:matched]]
+      ].each do |label, val| %>
+        <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+          <dt style="color: #6b7280;"><%= label %></dt>
+          <dd style="font-weight: 600; color: #111827; margin: 0;"><%= val %></dd>
+        </div>
+      <% end %>
+      <div style="display: flex; justify-content: space-between; font-size: 0.875rem; padding-top: 0.5rem; border-top: 1px solid #f3f4f6; margin-top: 0.25rem;">
+        <dt style="color: #6b7280;">Last scraped</dt>
+        <dd style="font-weight: 600; color: #111827; margin: 0;">
+          <%= @deals[:last_scraped] ? time_ago_in_words(@deals[:last_scraped]) + " ago" : "never" %>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <%# Stores %>
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem;">
+    <h3 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.875rem;">Stores</h3>
+    <dl style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <% [
+        ["Total",      @stores[:total]],
+        ["Scrapeable", @stores[:scrapeable]],
+        ["Stale",      @stores[:stale]]
+      ].each do |label, val| %>
+        <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+          <dt style="color: #6b7280;"><%= label %></dt>
+          <dd style="margin: 0;">
+            <% if label == "Stale" && val.to_i > 0 %>
+              <span class="admin-badge admin-badge-yellow"><%= val %></span>
+            <% else %>
+              <span style="font-weight: 600; color: #111827;"><%= val %></span>
+            <% end %>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  </div>
+
+  <%# Users %>
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem;">
+    <h3 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.875rem;">Users</h3>
+    <dl style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <% [
+        ["Total",        @users[:total]],
+        ["Onboarded",    @users[:onboarded]],
+        ["With stores",  @users[:with_stores]],
+        ["Admins",       @users[:admins]]
+      ].each do |label, val| %>
+        <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+          <dt style="color: #6b7280;"><%= label %></dt>
+          <dd style="font-weight: 600; color: #111827; margin: 0;"><%= val %></dd>
+        </div>
+      <% end %>
+    </dl>
+  </div>
+
+</div>
+
+<%# ── Queue Stats ─────────────────────────────────────────────────── %>
+<div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem;">
+  <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0 0 1rem;">Job Queue (Solid Queue)</h2>
+
+  <% if @queue[:jobs_table_exists] %>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+      <div style="text-align: center; padding: 1rem; background: #f9fafb; border-radius: 0.5rem;">
+        <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.375rem;">Pending</p>
+        <p style="font-size: 1.5rem; font-weight: 800; color: #111827; margin: 0;"><%= @queue[:pending] || "—" %></p>
+      </div>
+      <div style="text-align: center; padding: 1rem; background: #f9fafb; border-radius: 0.5rem;">
+        <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.375rem;">Failed</p>
+        <p style="font-size: 1.5rem; font-weight: 800; color: <%= @queue[:failed].to_i > 0 ? '#dc2626' : '#111827' %>; margin: 0;"><%= @queue[:failed] || "—" %></p>
+      </div>
+    </div>
+  <% else %>
+    <div style="padding: 1rem; background: #fef9c3; border-radius: 0.5rem; font-size: 0.875rem; color: #854d0e;">
+      Solid Queue tables not found in the database. Run <code style="background: rgba(0,0,0,0.06); padding: 0.1rem 0.35rem; border-radius: 3px;">rails db:migrate</code> to enable queue monitoring.
+    </div>
+  <% end %>
+</div>
+
+<%# ── SMTP ────────────────────────────────────────────────────────── %>
+<div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0;">Email (SMTP)</h2>
+    <%= link_to "Configure →", edit_admin_email_settings_path,
+          style: "font-size: 0.8125rem; color: #1a7425; font-weight: 600; text-decoration: none;" %>
+  </div>
+  <% if @smtp_configured %>
+    <span class="admin-badge admin-badge-green">Configured</span>
+    <span style="font-size: 0.8125rem; color: #6b7280; margin-left: 0.5rem;">SMTP address set — password reset emails will deliver.</span>
+  <% else %>
+    <span class="admin-badge admin-badge-yellow">Not configured</span>
+    <span style="font-size: 0.8125rem; color: #6b7280; margin-left: 0.5rem;">Password reset emails will not deliver until SMTP is configured.</span>
+  <% end %>
+</div>

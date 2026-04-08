@@ -1,0 +1,157 @@
+<turbo-frame id="job_activity">
+  <% if !@queue_available %>
+    <div style="padding: 1rem; background: #fef9c3; border-radius: 0.5rem; font-size: 0.875rem; color: #854d0e;">
+      Solid Queue tables not found. Run <code style="background: rgba(0,0,0,0.06); padding: 0.1rem 0.35rem; border-radius: 3px;">rails db:migrate</code> to enable queue monitoring.
+    </div>
+
+  <% else %>
+    <%# ── Active Workers ──────────────────────────────────────────── %>
+    <div style="margin-bottom: 1.25rem;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.625rem;">
+        <h3 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0;">Workers</h3>
+        <% if @processes.any? %>
+          <span class="admin-badge admin-badge-green"><%= @processes.count %> online</span>
+        <% else %>
+          <span class="admin-badge admin-badge-yellow">No workers running</span>
+        <% end %>
+      </div>
+      <% if @processes.any? %>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+          <% @processes.each do |p| %>
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.5rem; padding: 0.375rem 0.75rem; font-size: 0.8125rem;">
+              <span style="font-weight: 600; color: #15803d;"><%= p.kind %></span>
+              <span style="color: #6b7280; margin-left: 0.375rem;"><%= p.hostname %> · PID <%= p.pid %></span>
+              <span style="color: #9ca3af; margin-left: 0.375rem;">♥ <%= time_ago_in_words(p.last_heartbeat_at) %> ago</span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p style="font-size: 0.8125rem; color: #9ca3af; margin: 0;">Start workers with <code style="background: #f3f4f6; padding: 0.1rem 0.35rem; border-radius: 3px;">bin/jobs</code></p>
+      <% end %>
+    </div>
+
+    <%# ── Currently Running ───────────────────────────────────────── %>
+    <div style="margin-bottom: 1.25rem;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.625rem;">
+        <span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; animation: pulse 1.5s ease-in-out infinite;"></span>
+        <h3 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0;">Running</h3>
+        <span style="font-size: 0.75rem; color: #9ca3af;">(<%= @running.count %>)</span>
+      </div>
+      <% if @running.any? %>
+        <table class="admin-table" style="background: #eff6ff; border-radius: 0.5rem; overflow: hidden;">
+          <thead><tr>
+            <th>Job</th><th>Queue</th><th>Started</th><th></th>
+          </tr></thead>
+          <tbody>
+            <% @running.each do |exec| %>
+              <tr>
+                <td><span style="font-family: monospace; font-size: 0.8125rem;"><%= exec.job.class_name.demodulize %></span></td>
+                <td><span class="admin-badge admin-badge-gray"><%= exec.job.queue_name %></span></td>
+                <td style="color: #6b7280;"><%= time_ago_in_words(exec.created_at) %> ago</td>
+                <td><%= link_to "→", admin_job_execution_path(exec.job_id), style: "color: #1a7425; font-weight: 600; text-decoration: none; font-size: 0.8125rem;" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p style="font-size: 0.8125rem; color: #9ca3af; margin: 0;">No jobs currently running.</p>
+      <% end %>
+    </div>
+
+    <%# ── Queued ──────────────────────────────────────────────────── %>
+    <div style="margin-bottom: 1.25rem;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.625rem;">
+        <h3 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0;">Queued</h3>
+        <span style="font-size: 0.75rem; color: #9ca3af;">(<%= @queued.count %>)</span>
+      </div>
+      <% if @queued.any? %>
+        <table class="admin-table">
+          <thead><tr><th>Job</th><th>Queue</th><th>Priority</th><th>Enqueued</th><th></th></tr></thead>
+          <tbody>
+            <% @queued.each do |exec| %>
+              <tr>
+                <td><span style="font-family: monospace; font-size: 0.8125rem;"><%= exec.job.class_name.demodulize %></span></td>
+                <td><span class="admin-badge admin-badge-gray"><%= exec.job.queue_name %></span></td>
+                <td style="color: #6b7280;"><%= exec.priority %></td>
+                <td style="color: #6b7280;"><%= time_ago_in_words(exec.created_at) %> ago</td>
+                <td><%= link_to "→", admin_job_execution_path(exec.job_id), style: "color: #1a7425; font-weight: 600; text-decoration: none; font-size: 0.8125rem;" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p style="font-size: 0.8125rem; color: #9ca3af; margin: 0;">Queue is empty.</p>
+      <% end %>
+    </div>
+
+    <%# ── Recently Completed ──────────────────────────────────────── %>
+    <div style="margin-bottom: 1.25rem;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.625rem;">
+        <h3 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0;">Completed</h3>
+        <span style="font-size: 0.75rem; color: #9ca3af;">(last 30 min)</span>
+      </div>
+      <% if @completed.any? %>
+        <table class="admin-table">
+          <thead><tr><th>Job</th><th>Queue</th><th>Finished</th><th>Duration</th><th></th></tr></thead>
+          <tbody>
+            <% @completed.each do |job| %>
+              <tr>
+                <td><span style="font-family: monospace; font-size: 0.8125rem;"><%= job.class_name.demodulize %></span></td>
+                <td><span class="admin-badge admin-badge-gray"><%= job.queue_name %></span></td>
+                <td style="color: #6b7280;"><%= job.finished_at.strftime("%H:%M:%S") %></td>
+                <td style="color: #16a34a; font-weight: 600;">
+                  <% secs = (job.finished_at - job.created_at).round %>
+                  <%= secs >= 60 ? "#{(secs / 60)}m #{secs % 60}s" : "#{secs}s" %>
+                </td>
+                <td><%= link_to "→", admin_job_execution_path(job), style: "color: #1a7425; font-weight: 600; text-decoration: none; font-size: 0.8125rem;" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p style="font-size: 0.8125rem; color: #9ca3af; margin: 0;">No jobs completed in the last 30 minutes.</p>
+      <% end %>
+    </div>
+
+    <%# ── Failed ──────────────────────────────────────────────────── %>
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.625rem;">
+        <h3 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0;">Failed</h3>
+        <% if @failed.any? %>
+          <span class="admin-badge admin-badge-red"><%= @failed.count %></span>
+        <% else %>
+          <span style="font-size: 0.75rem; color: #9ca3af;">(0)</span>
+        <% end %>
+      </div>
+      <% if @failed.any? %>
+        <table class="admin-table">
+          <thead><tr><th>Job</th><th>Queue</th><th>Failed</th><th>Error</th><th></th></tr></thead>
+          <tbody>
+            <% @failed.each do |exec| %>
+              <tr>
+                <td><span style="font-family: monospace; font-size: 0.8125rem;"><%= exec.job.class_name.demodulize %></span></td>
+                <td><span class="admin-badge admin-badge-gray"><%= exec.job.queue_name %></span></td>
+                <td style="color: #6b7280;"><%= time_ago_in_words(exec.created_at) %> ago</td>
+                <td style="font-size: 0.75rem; color: #dc2626; max-width: 20rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  <% err = JSON.parse(exec.error) rescue nil %>
+                  <%= err&.dig("message")&.truncate(80) || exec.error&.truncate(80) || "—" %>
+                </td>
+                <td><%= link_to "→", admin_job_execution_path(exec.job_id), style: "color: #dc2626; font-weight: 600; text-decoration: none; font-size: 0.8125rem;" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p style="font-size: 0.8125rem; color: #9ca3af; margin: 0;">No failed jobs.</p>
+      <% end %>
+    </div>
+
+  <% end %>
+
+  <style>
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+  </style>
+</turbo-frame>

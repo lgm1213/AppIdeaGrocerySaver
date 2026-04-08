@@ -1,0 +1,93 @@
+<% content_for :page_title, "Admin Overview" %>
+<% content_for :page_subtitle, "Operational summary for Save & Savor" %>
+
+<%# ── Stat Cards ─────────────────────────────────────────────────────── %>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+
+  <div class="admin-stat-card">
+    <p style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.5rem;">Total Users</p>
+    <p style="font-size: 2rem; font-weight: 800; color: #111827; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif;"><%= @user_count %></p>
+  </div>
+
+  <div class="admin-stat-card">
+    <p style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.5rem;">Total Deals</p>
+    <p style="font-size: 2rem; font-weight: 800; color: #111827; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif;"><%= @deal_count %></p>
+    <p style="font-size: 0.75rem; color: #16a34a; margin: 0.25rem 0 0;"><%= @active_deals %> active</p>
+  </div>
+
+  <div class="admin-stat-card">
+    <p style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.5rem;">Recipes</p>
+    <p style="font-size: 2rem; font-weight: 800; color: #111827; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif;"><%= @recipe_count %></p>
+  </div>
+
+  <div class="admin-stat-card">
+    <p style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 0 0 0.5rem;">Stores</p>
+    <p style="font-size: 2rem; font-weight: 800; color: #111827; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif;"><%= @store_count %></p>
+    <p style="font-size: 0.75rem; color: #6b7280; margin: 0.25rem 0 0;">
+      Last scraped: <%= @last_scraped ? time_ago_in_words(@last_scraped) + " ago" : "never" %>
+    </p>
+  </div>
+
+</div>
+
+<%# ── Quick Actions ────────────────────────────────────────────────────── %>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #111827; margin: 0 0 1rem;">Quick Actions</h2>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <%= button_to admin_jobs_path, method: :post, params: { job_key: "full_pipeline" },
+            style: "display: flex; align-items: center; justify-content: space-between; background: #1a7425; color: #fff; border: none; border-radius: 0.5rem; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-align: left; width: 100%;" do %>
+        <span>Run Full Deal Pipeline</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <% end %>
+
+      <%= link_to admin_users_path,
+            style: "display: flex; align-items: center; justify-content: space-between; background: #f3f4f6; color: #374151; border-radius: 0.5rem; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; text-decoration: none;" do %>
+        <span>Manage Users</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+      <% end %>
+
+      <%= link_to edit_admin_email_settings_path,
+            style: "display: flex; align-items: center; justify-content: space-between; background: #{@smtp_configured ? '#f3f4f6' : '#fef9c3'}; color: #374151; border-radius: 0.5rem; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; text-decoration: none;" do %>
+        <span><%= @smtp_configured ? "Email Settings" : "⚠ Configure Email (not set)" %></span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+      <% end %>
+    </div>
+  </div>
+
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #111827; margin: 0 0 1rem;">System Status</h2>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.875rem; color: #374151;">Database</span>
+        <span class="admin-badge admin-badge-green">Connected</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.875rem; color: #374151;">Active Deals</span>
+        <span class="admin-badge <%= @active_deals > 0 ? 'admin-badge-green' : 'admin-badge-yellow' %>">
+          <%= @active_deals %> deals
+        </span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.875rem; color: #374151;">SMTP</span>
+        <span class="admin-badge <%= @smtp_configured ? 'admin-badge-green' : 'admin-badge-yellow' %>">
+          <%= @smtp_configured ? "Configured" : "Not set" %>
+        </span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.875rem; color: #374151;">Environment</span>
+        <span class="admin-badge admin-badge-gray"><%= Rails.env %></span>
+      </div>
+    </div>
+
+    <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f3f4f6;">
+      <%= link_to admin_system_health_path, style: "font-size: 0.8125rem; color: #1a7425; text-decoration: none; font-weight: 600;" do %>
+        View full health report →
+      <% end %>
+    </div>
+  </div>
+
+</div>

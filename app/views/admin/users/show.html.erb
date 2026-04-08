@@ -1,0 +1,128 @@
+<% content_for :page_title, @user.name %>
+<% content_for :page_subtitle, @user.email_address %>
+<% content_for :header_actions do %>
+  <%= link_to "← All Users", admin_users_path,
+        style: "font-size: 0.875rem; color: #6b7280; text-decoration: none; font-weight: 500;" %>
+<% end %>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+  <%# Profile info %>
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0 0 1rem;">Profile</h2>
+
+    <dl style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <div style="display: flex; justify-content: space-between;">
+        <dt style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Email</dt>
+        <dd style="font-size: 0.8125rem; color: #111827; margin: 0;"><%= @user.email_address %></dd>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <dt style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Auth provider</dt>
+        <dd style="font-size: 0.8125rem; color: #111827; margin: 0;"><%= @user.provider&.capitalize || "Email/Password" %></dd>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <dt style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Joined</dt>
+        <dd style="font-size: 0.8125rem; color: #111827; margin: 0;"><%= @user.created_at.strftime("%B %-d, %Y") %></dd>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <dt style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Onboarding</dt>
+        <dd style="margin: 0;">
+          <% if @user.onboarding_complete? %>
+            <span class="admin-badge admin-badge-green">Complete</span>
+          <% else %>
+            <span class="admin-badge admin-badge-yellow">Step: <%= @user.onboarding_step %></span>
+          <% end %>
+        </dd>
+      </div>
+      <% if (pref = @user.user_preference) %>
+        <div style="display: flex; justify-content: space-between;">
+          <dt style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Household</dt>
+          <dd style="font-size: 0.8125rem; color: #111827; margin: 0;"><%= pref.household_size %> people</dd>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <dt style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Budget</dt>
+          <dd style="font-size: 0.8125rem; color: #111827; margin: 0;"><%= pref.weekly_budget ? number_to_currency(pref.weekly_budget) + "/wk" : "—" %></dd>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <dt style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">ZIP</dt>
+          <dd style="font-size: 0.8125rem; color: #111827; margin: 0;"><%= pref.zip_code.presence || "—" %></dd>
+        </div>
+      <% end %>
+    </dl>
+  </div>
+
+  <%# Actions %>
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0 0 1rem;">Actions</h2>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+
+      <%# Toggle admin %>
+      <% if @user != Current.user %>
+        <%= button_to toggle_admin_admin_user_path(@user), method: :patch,
+              style: "background: #{@user.admin? ? '#fee2e2' : '#f0fdf4'}; color: #{@user.admin? ? '#b91c1c' : '#15803d'}; border: 1px solid #{@user.admin? ? '#fecaca' : '#bbf7d0'}; border-radius: 0.5rem; padding: 0.625rem 1rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-align: left; width: 100%;" do %>
+          <%= @user.admin? ? "Revoke Admin Access" : "Grant Admin Access" %>
+        <% end %>
+      <% end %>
+
+      <%# Reset onboarding %>
+      <% unless @user.onboarding_complete? %>
+        <div style="font-size: 0.8125rem; color: #6b7280; padding: 0.625rem 1rem; background: #f9fafb; border-radius: 0.5rem;">
+          User has not completed onboarding (current step: <strong><%= @user.onboarding_step %></strong>).
+        </div>
+      <% end %>
+
+      <% if @user.onboarding_complete? %>
+        <%= button_to reset_onboarding_admin_user_path(@user), method: :patch,
+              data: { confirm: "Reset this user's onboarding? They will be redirected on next login." },
+              style: "background: #f9fafb; color: #374151; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 0.625rem 1rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-align: left; width: 100%;" do %>
+          Reset Onboarding
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Stores %>
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0 0 1rem;">
+      Linked Stores (<%= @user.stores.count %>)
+    </h2>
+    <% if @user.stores.any? %>
+      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
+        <% @user.stores.each do |store| %>
+          <li style="font-size: 0.875rem; color: #374151; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="width: 6px; height: 6px; background: #1a7425; border-radius: 50%; flex-shrink: 0;"></span>
+            <%= store.name %>
+            <% if store.deals_stale? %>
+              <span class="admin-badge admin-badge-yellow" style="margin-left: auto;">Stale</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p style="font-size: 0.875rem; color: #9ca3af; margin: 0;">No stores linked.</p>
+    <% end %>
+  </div>
+
+  <%# Recent sessions %>
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0 0 1rem;">
+      Recent Sessions (<%= @sessions.count %>)
+    </h2>
+    <% if @sessions.any? %>
+      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.625rem;">
+        <% @sessions.each do |session| %>
+          <li>
+            <div style="font-size: 0.75rem; color: #6b7280;"><%= session.created_at.strftime("%b %-d %Y, %l:%M %p") %> — <%= session.ip_address %></div>
+            <% if session.user_agent.present? %>
+              <div style="font-size: 0.7rem; color: #9ca3af; margin-top: 0.125rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= session.user_agent.truncate(80) %></div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p style="font-size: 0.875rem; color: #9ca3af; margin: 0;">No sessions.</p>
+    <% end %>
+  </div>
+
+</div>

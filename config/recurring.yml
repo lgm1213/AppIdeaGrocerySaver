@@ -1,22 +1,11 @@
-# examples:
-#   periodic_cleanup:
-#     class: CleanSoftDeletedRecordsJob
-#     queue: background
-#     args: [ 1000, { batch_size: 500 } ]
-#     schedule: every hour
-#   periodic_cleanup_with_command:
-#     command: "SoftDeletedRecord.due.delete_all"
-#     priority: 2
-#     schedule: at 5am every day
-
 production:
+  # ── Housekeeping ──────────────────────────────────────────────────────────
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
 
-  # Publix resets weekly deals every Wednesday morning.
-  # Scrape at 8am ET on Wednesdays, then immediately match deals to ingredients.
-  fetch_publix_deals:
+  # ── Deal pipeline — every Wednesday at 8:00 AM ───────────────────────────
+  fetch_weekly_deals:
     class: FetchDealsJob
-    queue: default
-    schedule: every Wednesday at 8am
+    schedule: every week on wednesday at 8am
+    description: "Scrapes Publix weekly ad and matches deals to ingredients"

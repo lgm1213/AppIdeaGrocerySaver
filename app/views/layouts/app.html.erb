@@ -116,6 +116,19 @@
           <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #81826d;">Account</span>
         </div>
 
+        <% if Current.user&.admin? %>
+          <div style="margin-bottom: 0.25rem;">
+            <%= link_to admin_root_path,
+                  class: "nav-item #{request.path.start_with?('/admin') ? 'active' : ''}",
+                  aria: { current: request.path.start_with?('/admin') ? "page" : nil } do %>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              Admin Panel
+            <% end %>
+          </div>
+        <% end %>
+
         <div style="margin-bottom: 0.25rem;">
           <%= link_to edit_settings_path,
                 class: "nav-item #{controller_name == 'settings' ? 'active' : ''}",

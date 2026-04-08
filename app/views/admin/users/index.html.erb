@@ -1,0 +1,55 @@
+<% content_for :page_title, "Users" %>
+<% content_for :page_subtitle, "#{@users.count} total users" %>
+
+<div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; overflow: hidden;">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Joined</th>
+        <th>Onboarding</th>
+        <th>Stores</th>
+        <th>Auth</th>
+        <th>Role</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td>
+            <div style="font-weight: 600; color: #111827;"><%= user.name %></div>
+            <div style="font-size: 0.75rem; color: #6b7280;"><%= user.email_address %></div>
+          </td>
+          <td style="color: #6b7280;"><%= user.created_at.strftime("%b %-d, %Y") %></td>
+          <td>
+            <% if user.onboarding_complete? %>
+              <span class="admin-badge admin-badge-green">Complete</span>
+            <% else %>
+              <span class="admin-badge admin-badge-yellow"><%= user.onboarding_step %></span>
+            <% end %>
+          </td>
+          <td style="color: #374151;"><%= user.user_stores.size %></td>
+          <td>
+            <% if user.provider.present? %>
+              <span class="admin-badge admin-badge-gray"><%= user.provider.capitalize %></span>
+            <% else %>
+              <span class="admin-badge admin-badge-gray">Email</span>
+            <% end %>
+          </td>
+          <td>
+            <% if user.admin? %>
+              <span class="admin-badge admin-badge-red">Admin</span>
+            <% else %>
+              <span class="admin-badge admin-badge-gray">User</span>
+            <% end %>
+          </td>
+          <td>
+            <%= link_to "View", admin_user_path(user),
+                  style: "font-size: 0.8125rem; color: #1a7425; font-weight: 600; text-decoration: none;" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

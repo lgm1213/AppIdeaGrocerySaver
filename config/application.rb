@@ -21,6 +21,9 @@ module AppIdeaGrocerySaver
       g.orm :active_record, primary_key_type: :uuid
     end
 
+    # Route ActiveJob through Solid Queue (all environments).
+    config.active_job.queue_adapter = :solid_queue
+
     # Meal generator provider — "deals" ranks recipes by active weekly savings.
     # Swap to "mock" for random selection, or "anthropic"/"openai" when AI is ready.
     config.meal_ai_provider = "deals"
