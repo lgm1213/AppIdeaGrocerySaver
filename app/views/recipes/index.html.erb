@@ -1,0 +1,96 @@
+<% content_for :page_title, "Recipes" %>
+<% content_for :page_subtitle, "Browse, rate, and personalize your meal suggestions" %>
+
+<%# ── Filter bar ──────────────────────────────────────────────────────────── %>
+<%= form_with url: recipes_path, method: :get, data: { turbo_frame: "_top" },
+      style: "display: flex; flex-wrap: wrap; align-items: center; gap: 0.625rem; margin-bottom: 1.5rem;" do |f| %>
+
+  <%# Meal type %>
+  <select name="meal_type" onchange="this.form.requestSubmit()"
+          style="padding: 0.4375rem 0.75rem; border: 1px solid #e8e9d4; border-radius: 0.5rem; font-size: 0.875rem; background: #fff; color: #373928; cursor: pointer;">
+    <option value="">All meals</option>
+    <% %w[breakfast lunch dinner snack].each do |t| %>
+      <option value="<%= t %>" <%= "selected" if params[:meal_type] == t %>><%= t.capitalize %></option>
+    <% end %>
+  </select>
+
+  <%# Cuisine %>
+  <select name="cuisine" onchange="this.form.requestSubmit()"
+          style="padding: 0.4375rem 0.75rem; border: 1px solid #e8e9d4; border-radius: 0.5rem; font-size: 0.875rem; background: #fff; color: #373928; cursor: pointer;">
+    <option value="">All cuisines</option>
+    <% @cuisines.each do |c| %>
+      <option value="<%= c %>" <%= "selected" if params[:cuisine] == c %>><%= c %></option>
+    <% end %>
+  </select>
+
+  <%# Dietary %>
+  <div style="display: flex; gap: 0.375rem; flex-wrap: wrap;">
+    <% [["vegetarian", "Vegetarian"], ["vegan", "Vegan"], ["gluten_free", "GF"], ["dairy_free", "DF"], ["keto", "Keto"]].each do |key, label| %>
+      <label style="display: flex; align-items: center; gap: 0.25rem; background: <%= Array(params[:dietary]).include?(key) ? '#dcfce7' : '#f3f4f6' %>; border: 1px solid <%= Array(params[:dietary]).include?(key) ? '#86efac' : '#e8e9d4' %>; border-radius: 9999px; padding: 0.25rem 0.625rem; font-size: 0.75rem; font-weight: 600; color: <%= Array(params[:dietary]).include?(key) ? '#15803d' : '#646652' %>; cursor: pointer;">
+        <input type="checkbox" name="dietary[]" value="<%= key %>"
+               <%= "checked" if Array(params[:dietary]).include?(key) %>
+               onchange="this.form.requestSubmit()"
+               style="width: 0; height: 0; opacity: 0; position: absolute;">
+        <%= label %>
+      </label>
+    <% end %>
+  </div>
+
+  <%# On Sale Now toggle %>
+  <label style="display: flex; align-items: center; gap: 0.375rem; cursor: pointer; background: <%= @on_sale_active ? '#dcfce7' : '#fff' %>; border: 1px solid <%= @on_sale_active ? '#86efac' : '#e8e9d4' %>; border-radius: 0.5rem; padding: 0.375rem 0.75rem; font-size: 0.8125rem; font-weight: 600; color: <%= @on_sale_active ? '#15803d' : '#646652' %>;">
+    <input type="checkbox" name="on_sale" value="1"
+           <%= "checked" if @on_sale_active %>
+           onchange="this.form.requestSubmit()"
+           style="width: 0; height: 0; opacity: 0; position: absolute;">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/>
+      <line x1="12" y1="22" x2="12" y2="7"/>
+      <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+      <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+    </svg>
+    On Sale Now
+  </label>
+
+  <%# Sort %>
+  <select name="sort" onchange="this.form.requestSubmit()"
+          style="padding: 0.4375rem 0.75rem; border: 1px solid #e8e9d4; border-radius: 0.5rem; font-size: 0.875rem; background: #fff; color: #373928; cursor: pointer; margin-left: auto;">
+    <option value="">Sort: A–Z</option>
+    <option value="top_rated" <%= "selected" if params[:sort] == "top_rated" %>>Top Rated</option>
+    <option value="quick"     <%= "selected" if params[:sort] == "quick"     %>>Quickest</option>
+    <option value="budget"    <%= "selected" if params[:sort] == "budget"    %>>Best Value</option>
+  </select>
+
+<% end %>
+
+<%# ── Results count ───────────────────────────────────────────────────────── %>
+<p style="font-size: 0.8125rem; color: #81826d; margin-bottom: 1rem;">
+  <%= @pagy.count %> recipe<%= @pagy.count == 1 ? "" : "s" %>
+  <% if @on_sale_active %><span style="color: #15803d; font-weight: 600;"> · On Sale Now filter active</span><% end %>
+</p>
+
+<%# ── Recipe grid ─────────────────────────────────────────────────────────── %>
+<% if @recipes.any? %>
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <% @recipes.each do |recipe| %>
+      <%= render "recipes/recipe_card",
+            recipe:       recipe,
+            preference:   @preference_map[recipe.id],
+            on_sale_deal: nil %>
+    <% end %>
+  </div>
+
+  <%# Pagination %>
+  <% if @pagy.pages > 1 %>
+    <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
+      <%== pagy_nav(@pagy) %>
+    </div>
+  <% end %>
+<% else %>
+  <div style="text-align: center; padding: 4rem 2rem; color: #9ca3af;">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem; display: block; opacity: 0.4;">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <p style="font-size: 0.9375rem; font-weight: 600; margin: 0 0 0.5rem;">No recipes found</p>
+    <p style="font-size: 0.875rem; margin: 0;">Try adjusting the filters above.</p>
+  </div>
+<% end %>

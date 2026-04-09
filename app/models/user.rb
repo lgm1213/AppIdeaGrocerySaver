@@ -1,11 +1,13 @@
 class User < ApplicationRecord
   has_secure_password validations: false
-  has_many :sessions,        dependent: :destroy
-  has_many :meal_plans,      dependent: :destroy
-  has_many :shopping_lists,  dependent: :destroy
-  has_one  :user_preference, dependent: :destroy
-  has_many :user_stores,     dependent: :destroy
-  has_many :stores,          through: :user_stores
+  has_many :sessions,                dependent: :destroy
+  has_many :meal_plans,              dependent: :destroy
+  has_many :shopping_lists,          dependent: :destroy
+  has_one  :user_preference,         dependent: :destroy
+  has_many :user_stores,             dependent: :destroy
+  has_many :stores,                  through: :user_stores
+  has_many :user_recipe_preferences, dependent: :destroy
+  has_many :preferred_recipes,       through: :user_recipe_preferences, source: :recipe
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

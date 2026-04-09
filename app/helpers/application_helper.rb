@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include Pagy::Frontend
+
   # Returns a symbol describing the current state of a SolidQueue::Job.
   def job_execution_status(job)
     return :failed    if job.association(:failed_execution).loaded? ? job.failed_execution.present? : SolidQueue::FailedExecution.exists?(job_id: job.id)

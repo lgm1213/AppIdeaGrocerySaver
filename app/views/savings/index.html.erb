@@ -1,0 +1,214 @@
+<% content_for :page_title, "Savings" %>
+<% content_for :page_subtitle, "Track your grocery savings and spending habits" %>
+
+<%# ── Hero stat cards ──────────────────────────────────────────────────── %>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+
+  <%# This week's deal savings %>
+  <div style="background: #fff; border: 1px solid #e8e9d4; border-radius: 0.875rem; padding: 1.25rem;">
+    <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #81826d; margin: 0 0 0.5rem;">This Week · Deal Savings</p>
+    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2rem; font-weight: 800; color: #15803d; margin: 0; line-height: 1;">
+      $<%= "%.2f" % @summary.this_week_deal_savings %>
+    </p>
+    <p style="font-size: 0.75rem; color: #81826d; margin: 0.375rem 0 0;">estimated from active deals</p>
+  </div>
+
+  <%# All-time estimated spend %>
+  <div style="background: #fff; border: 1px solid #e8e9d4; border-radius: 0.875rem; padding: 1.25rem;">
+    <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #81826d; margin: 0 0 0.5rem;">All-Time · Estimated Spend</p>
+    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2rem; font-weight: 800; color: #373928; margin: 0; line-height: 1;">
+      $<%= "%.2f" % @summary.total_estimated_spend %>
+    </p>
+    <p style="font-size: 0.75rem; color: #81826d; margin: 0.375rem 0 0;">across <%= @summary.plans_count %> meal plan<%= @summary.plans_count == 1 ? "" : "s" %></p>
+  </div>
+
+  <%# Meals cooked %>
+  <div style="background: #fff; border: 1px solid #e8e9d4; border-radius: 0.875rem; padding: 1.25rem;">
+    <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #81826d; margin: 0 0 0.5rem;">All-Time · Meals Cooked</p>
+    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2rem; font-weight: 800; color: #373928; margin: 0; line-height: 1;">
+      <%= @summary.total_meals_cooked %>
+    </p>
+    <p style="font-size: 0.75rem; color: #81826d; margin: 0.375rem 0 0;">of <%= @summary.total_meals_planned %> planned · <%= @summary.cooking_efficiency %>% cooked</p>
+  </div>
+
+  <%# Average weekly cost %>
+  <div style="background: #fff; border: 1px solid #e8e9d4; border-radius: 0.875rem; padding: 1.25rem;">
+    <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #81826d; margin: 0 0 0.5rem;">Average · Weekly Cost</p>
+    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2rem; font-weight: 800; color: #373928; margin: 0; line-height: 1;">
+      $<%= "%.2f" % @summary.average_weekly_cost %>
+    </p>
+    <% if (util = @summary.budget_utilization) %>
+      <p style="font-size: 0.75rem; color: <%= util <= 100 ? '#15803d' : '#b91c1c' %>; margin: 0.375rem 0 0; font-weight: 600;">
+        <%= util %>% of weekly budget
+      </p>
+    <% else %>
+      <p style="font-size: 0.75rem; color: #81826d; margin: 0.375rem 0 0;">no budget set</p>
+    <% end %>
+  </div>
+
+</div>
+
+<%# ── Weekly spend chart ───────────────────────────────────────────────── %>
+<div style="background: #fff; border: 1px solid #e8e9d4; border-radius: 0.875rem; padding: 1.5rem; margin-bottom: 1.5rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0;">Weekly Spend vs Budget</h2>
+    <span style="font-size: 0.75rem; color: #81826d;">last 8 weeks</span>
+  </div>
+
+  <% if @weekly.any? %>
+    <%
+      budget      = Current.user.user_preference&.weekly_budget.to_f
+      chart_max   = @chart_max
+      bar_height  = 140  # px, fixed chart area height
+    %>
+
+    <%# Legend %>
+    <div style="display: flex; gap: 1.25rem; margin-bottom: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #646652;">
+        <div style="width: 10px; height: 10px; background: #86efac; border-radius: 2px;"></div> Under budget
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #646652;">
+        <div style="width: 10px; height: 10px; background: #fca5a5; border-radius: 2px;"></div> Over budget
+      </div>
+      <% if budget > 0 %>
+        <div style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: #646652;">
+          <div style="width: 16px; height: 2px; background: #6b7280; border-top: 2px dashed #6b7280;"></div> Budget ($<%= "%.0f" % budget %>)
+        </div>
+      <% end %>
+    </div>
+
+    <%# Chart area %>
+    <div style="position: relative;">
+      <%# Budget dashed line %>
+      <% if budget > 0 %>
+        <% budget_pct = (budget / chart_max * bar_height).round %>
+        <div style="position: absolute; left: 0; right: 0; bottom: 24px; height: 0; border-top: 2px dashed #9ca3af; transform: translateY(-<%= budget_pct %>px); pointer-events: none; z-index: 1;"></div>
+      <% end %>
+
+      <%# Bars row %>
+      <div style="display: flex; align-items: flex-end; gap: 0.5rem; height: <%= bar_height + 24 %>px; padding-bottom: 24px;">
+        <% @weekly.each do |week| %>
+          <%
+            cost      = week[:estimated_cost]
+            pct       = chart_max > 0 ? (cost / chart_max * bar_height).round : 0
+            over      = budget > 0 && cost > budget
+            bar_color = over ? "#fca5a5" : "#86efac"
+            border    = week[:current] ? "2px solid #15803d" : "2px solid transparent"
+          %>
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+            <%# Cost label above bar %>
+            <% if cost > 0 %>
+              <span style="font-size: 0.625rem; color: #6b7280; white-space: nowrap;">$<%= "%.0f" % cost %></span>
+            <% else %>
+              <span style="font-size: 0.625rem; color: #d1d5db;">—</span>
+            <% end %>
+
+            <%# Bar %>
+            <div style="width: 100%; height: <%= [pct, 4].max %>px; background: <%= bar_color %>; border-radius: 4px 4px 0 0; border: <%= border %>; box-sizing: border-box; transition: opacity 0.15s;"
+                 title="<%= week[:week_label] %>: $<%= '%.2f' % cost %>"></div>
+
+            <%# Week label %>
+            <span style="font-size: 0.625rem; color: #81826d; white-space: nowrap; overflow: hidden; max-width: 100%; text-align: center; margin-top: 0.25rem;">
+              <%= week[:week_start].strftime("%-m/%-d") %>
+              <% if week[:current] %><br><span style="color: #15803d; font-weight: 700;">now</span><% end %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div style="text-align: center; padding: 3rem 0; color: #9ca3af;">
+      <p style="font-size: 0.9375rem; margin: 0;">No meal plans yet — create one to start tracking spend.</p>
+    </div>
+  <% end %>
+</div>
+
+<%# ── Two-column: cooking efficiency + spending summary ───────────────── %>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+  <%# Cooking efficiency %>
+  <div style="background: #fff; border: 1px solid #e8e9d4; border-radius: 0.875rem; padding: 1.5rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0 0 1.25rem;">Cooking Efficiency</h2>
+
+    <%# Big percentage %>
+    <div style="display: flex; align-items: baseline; gap: 0.375rem; margin-bottom: 1rem;">
+      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 3rem; font-weight: 800; color: <%= @summary.cooking_efficiency >= 70 ? '#15803d' : (@summary.cooking_efficiency >= 40 ? '#d97706' : '#9ca3af') %>; line-height: 1;">
+        <%= @summary.cooking_efficiency %>%
+      </span>
+      <span style="font-size: 0.875rem; color: #81826d;">of planned meals cooked</span>
+    </div>
+
+    <%# Progress bar %>
+    <div style="background: #f3f4f6; border-radius: 9999px; height: 8px; margin-bottom: 1rem; overflow: hidden;">
+      <div style="height: 100%; width: <%= @summary.cooking_efficiency %>%; background: <%= @summary.cooking_efficiency >= 70 ? '#4ade80' : (@summary.cooking_efficiency >= 40 ? '#fbbf24' : '#d1d5db') %>; border-radius: 9999px; transition: width 0.3s;"></div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.8125rem;">
+        <span style="color: #646652;">Meals planned</span>
+        <span style="font-weight: 600; color: #373928;"><%= @summary.total_meals_planned %></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.8125rem;">
+        <span style="color: #646652;">Meals cooked</span>
+        <span style="font-weight: 600; color: #15803d;"><%= @summary.total_meals_cooked %></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.8125rem;">
+        <span style="color: #646652;">Meal plans created</span>
+        <span style="font-weight: 600; color: #373928;"><%= @summary.plans_count %></span>
+      </div>
+      <% if @summary.budget_utilization %>
+        <div style="display: flex; justify-content: space-between; font-size: 0.8125rem;">
+          <span style="color: #646652;">Weeks under budget</span>
+          <span style="font-weight: 600; color: #15803d;"><%= @summary.weeks_under_budget %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Spending summary %>
+  <div style="background: #fff; border: 1px solid #e8e9d4; border-radius: 0.875rem; padding: 1.5rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0 0 1.25rem;">Spending Summary</h2>
+
+    <div style="display: flex; flex-direction: column; gap: 0.875rem;">
+
+      <div>
+        <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #81826d; margin: 0 0 0.25rem;">Total Estimated Spend</p>
+        <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.5rem; font-weight: 800; color: #373928; margin: 0;">$<%= "%.2f" % @summary.total_estimated_spend %></p>
+      </div>
+
+      <div style="border-top: 1px solid #f3f4f6; padding-top: 0.875rem;">
+        <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #81826d; margin: 0 0 0.25rem;">Average Weekly Cost</p>
+        <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.5rem; font-weight: 800; color: #373928; margin: 0;">$<%= "%.2f" % @summary.average_weekly_cost %></p>
+      </div>
+
+      <% if (budget = Current.user.user_preference&.weekly_budget&.to_f) && budget > 0 %>
+        <div style="border-top: 1px solid #f3f4f6; padding-top: 0.875rem;">
+          <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #81826d; margin: 0 0 0.25rem;">Weekly Budget</p>
+          <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.5rem; font-weight: 800; color: #373928; margin: 0;">$<%= "%.2f" % budget %></p>
+          <% if (util = @summary.budget_utilization) %>
+            <p style="font-size: 0.75rem; color: <%= util <= 100 ? '#15803d' : '#b91c1c' %>; font-weight: 600; margin: 0.25rem 0 0;">
+              <%= util <= 100 ? "#{100 - util}% under budget on average" : "#{util - 100}% over budget on average" %>
+            </p>
+          <% end %>
+        </div>
+      <% else %>
+        <div style="border-top: 1px solid #f3f4f6; padding-top: 0.875rem;">
+          <p style="font-size: 0.8125rem; color: #9ca3af; margin: 0;">
+            No weekly budget set. <%= link_to "Add one in Settings →", edit_settings_path, style: "color: #646652; font-weight: 600;" %>
+          </p>
+        </div>
+      <% end %>
+
+      <%# Deal savings this week highlight %>
+      <% if @summary.this_week_deal_savings > 0 %>
+        <div style="border-top: 1px solid #f3f4f6; padding-top: 0.875rem; background: #f0fdf4; border-radius: 0.5rem; padding: 0.875rem; margin-top: 0.25rem;">
+          <p style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #15803d; margin: 0 0 0.25rem;">Deal Savings This Week</p>
+          <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.5rem; font-weight: 800; color: #15803d; margin: 0;">$<%= "%.2f" % @summary.this_week_deal_savings %></p>
+          <p style="font-size: 0.75rem; color: #16a34a; margin: 0.25rem 0 0;">estimated from current Publix deals</p>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+
+</div>

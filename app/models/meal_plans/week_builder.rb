@@ -58,7 +58,7 @@ module MealPlans
     end
 
     def fill_slots!
-      provider.suggested_entries(plan: @meal_plan, preferences: @user.user_preference).each do |attrs|
+      provider.suggested_entries(plan: @meal_plan, preferences: @user.user_preference, user: @user).each do |attrs|
         @meal_plan.meal_plan_entries.create!(
           day_of_week: attrs[:day_of_week],
           meal_slot:   attrs[:meal_slot],

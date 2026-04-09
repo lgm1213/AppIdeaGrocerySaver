@@ -1,0 +1,55 @@
+<%# Post-cook rating prompt injected via Turbo Stream. Locals: recipe, entry %>
+<div id="rating_prompt_<%= entry.id %>"
+     style="background: #fff; border: 1px solid #e8e9d4; border-radius: 0.75rem; padding: 1rem 1.25rem; margin-top: 0.75rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+
+  <div style="width: 2.5rem; height: 2.5rem; background: #fef9c3; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#f59e0b" stroke="none">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+  </div>
+
+  <div style="flex: 1; min-width: 0;">
+    <p style="font-size: 0.8125rem; font-weight: 600; color: #373928; margin: 0 0 0.25rem;">
+      How was <em><%= recipe.name %></em>?
+    </p>
+    <p style="font-size: 0.75rem; color: #6b7280; margin: 0 0 0.625rem;">
+      Rate it to personalize your future meal plans.
+    </p>
+
+    <%= form_with url: upsert_recipe_rating_path(recipe_id: recipe.id),
+          method: :post,
+          data: { turbo_stream: true } do |f| %>
+      <%= f.hidden_field :entry_id, value: entry.id %>
+
+      <div data-controller="star-rating"
+           data-star-rating-value-value="0"
+           style="display: inline-flex; gap: 3px; cursor: pointer;">
+        <% (1..5).each do |i| %>
+          <button type="button"
+                  data-star-rating-target="star"
+                  data-value="<%= i %>"
+                  data-action="mouseenter->star-rating#highlight mouseleave->star-rating#reset click->star-rating#select"
+                  style="background: none; border: none; padding: 2px; cursor: pointer; color: #d1d5db;"
+                  aria-label="<%= i %> star<%= i > 1 ? 's' : '' %>">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </button>
+        <% end %>
+        <%= f.hidden_field :rating, value: 0, data: { "star-rating-target": "input" } %>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Dismiss without rating %>
+  <%= button_to turbo_stream: true,
+        url: upsert_recipe_rating_path(recipe_id: recipe.id),
+        method: :post,
+        params: { entry_id: entry.id, rating: "" },
+        style: "background: none; border: none; color: #9ca3af; cursor: pointer; padding: 0.25rem; flex-shrink: 0;",
+        title: "Dismiss" do %>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  <% end %>
+</div>

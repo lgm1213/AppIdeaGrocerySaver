@@ -91,6 +91,16 @@ Rails.application.routes.draw do
       end
     end
 
+    # Recipes
+    resources :recipes, only: [ :index, :show ] do
+      resource :rating, only: [], controller: "recipe_ratings" do
+        post :upsert
+      end
+    end
+
+    # Savings dashboard
+    get "/savings", to: "savings#index", as: :savings
+
     # Weekly deals
     resources :deals, only: [ :index, :show ] do
       collection do

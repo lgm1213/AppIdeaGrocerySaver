@@ -1,0 +1,65 @@
+<%# Interactive rating widget. Locals: recipe, preference (UserRecipePreference|nil) %>
+<% current_rating = preference&.rating.to_i
+   current_liked  = preference&.liked %>
+<div id="recipe_rating_<%= recipe.id %>">
+  <%# ── Star rating ─────────────────────────────────────────────────── %>
+  <%= form_with url: upsert_recipe_rating_path(recipe_id: recipe.id),
+        method: :post,
+        data: { turbo_stream: true },
+        style: "display: inline-flex; align-items: center; gap: 0.5rem;" do |f| %>
+
+    <div data-controller="star-rating"
+         data-star-rating-value-value="<%= current_rating %>"
+         style="display: inline-flex; gap: 2px; cursor: pointer;">
+      <% (1..5).each do |i| %>
+        <button type="button"
+                data-star-rating-target="star"
+                data-value="<%= i %>"
+                data-action="mouseenter->star-rating#highlight mouseleave->star-rating#reset click->star-rating#select"
+                style="background: none; border: none; padding: 1px; cursor: pointer; color: <%= i <= current_rating ? '#f59e0b' : '#d1d5db' %>;"
+                aria-label="<%= i %> star<%= i > 1 ? 's' : '' %>"
+                aria-checked="<%= i <= current_rating %>">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </button>
+      <% end %>
+      <%= f.hidden_field :rating, value: current_rating, data: { "star-rating-target": "input" } %>
+    </div>
+
+    <% if current_rating > 0 %>
+      <span style="font-size: 0.75rem; color: #6b7280;">Your rating: <%= current_rating %>/5</span>
+    <% end %>
+  <% end %>
+
+  <%# ── Like / Block ────────────────────────────────────────────────── %>
+  <div style="display: inline-flex; gap: 0.375rem; margin-left: 0.75rem;">
+    <%# Like button %>
+    <%= form_with url: upsert_recipe_rating_path(recipe_id: recipe.id),
+          method: :post, data: { turbo_stream: true }, style: "display: inline;" do |f| %>
+      <%= f.hidden_field :liked, value: current_liked == true ? "nil" : "true" %>
+      <button type="submit"
+              style="background: <%= current_liked == true ? '#dcfce7' : '#f3f4f6' %>; border: 1px solid <%= current_liked == true ? '#86efac' : '#e5e7eb' %>; border-radius: 0.375rem; padding: 0.3rem 0.5rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; color: <%= current_liked == true ? '#15803d' : '#6b7280' %>;"
+              title="<%= current_liked == true ? 'Remove from favorites' : 'Add to favorites — suggest more often' %>">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="<%= current_liked == true ? 'currentColor' : 'none' %>" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        <%= current_liked == true ? "Liked" : "Like" %>
+      </button>
+    <% end %>
+
+    <%# Block button %>
+    <%= form_with url: upsert_recipe_rating_path(recipe_id: recipe.id),
+          method: :post, data: { turbo_stream: true }, style: "display: inline;" do |f| %>
+      <%= f.hidden_field :liked, value: current_liked == false ? "nil" : "false" %>
+      <button type="submit"
+              style="background: <%= current_liked == false ? '#fee2e2' : '#f3f4f6' %>; border: 1px solid <%= current_liked == false ? '#fecaca' : '#e5e7eb' %>; border-radius: 0.375rem; padding: 0.3rem 0.5rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; color: <%= current_liked == false ? '#b91c1c' : '#6b7280' %>;"
+              title="<%= current_liked == false ? 'Remove block' : 'Never suggest this recipe' %>">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        </svg>
+        <%= current_liked == false ? "Blocked" : "Block" %>
+      </button>
+    <% end %>
+  </div>
+</div>

@@ -66,15 +66,18 @@ class MealPlanEntriesController < ApplicationController
   end
 
   def toggle_cooked
-    if @entry.cooked?
+    was_cooked = @entry.cooked?
+
+    if was_cooked
       @entry.unmark_cooked!
     else
       @entry.mark_cooked!
+      update_recipe_preference_on_cook
     end
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: [
+        streams = [
           turbo_stream.replace(
             slot_frame_id(@entry.day_of_week, @entry.meal_slot),
             partial: "meal_plans/slot_card",
@@ -91,6 +94,17 @@ class MealPlanEntriesController < ApplicationController
             locals: dashboard_stats_locals
           )
         ]
+
+        # Show rating prompt when marking cooked and recipe hasn't been rated yet
+        if !was_cooked && @entry.recipe && unrated_by_current_user?
+          streams << turbo_stream.append(
+            "rating_prompts",
+            partial: "recipes/rating_prompt",
+            locals: { recipe: @entry.recipe, entry: @entry }
+          )
+        end
+
+        render turbo_stream: streams
       end
       format.html { redirect_to calendar_meal_plan_path(@meal_plan) }
     end
@@ -120,6 +134,21 @@ class MealPlanEntriesController < ApplicationController
 
   def slot_frame_id(day, slot)
     "slot_#{day}_#{slot}"
+  end
+
+  def update_recipe_preference_on_cook
+    pref = Current.user.user_recipe_preferences
+                       .find_or_initialize_by(recipe_id: @entry.recipe_id)
+    pref.cooked_count   = (pref.cooked_count || 0) + 1
+    pref.last_cooked_at = Time.current
+    pref.save!
+  end
+
+  def unrated_by_current_user?
+    !Current.user.user_recipe_preferences
+                 .where(recipe_id: @entry.recipe_id)
+                 .where.not(rating: nil)
+                 .exists?
   end
 
   def dashboard_stats_locals

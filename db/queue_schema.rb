@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_08_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_08_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -95,6 +95,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_000003) do
   end
 
   create_table "recipes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.decimal "average_rating", precision: 3, scale: 2, default: "0.0", null: false
     t.integer "calories_per_serving"
     t.integer "cook_time_minutes", default: 20
     t.datetime "created_at", null: false
@@ -112,16 +113,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_000003) do
     t.string "meal_type", null: false
     t.string "name", null: false
     t.integer "prep_time_minutes", default: 10
+    t.integer "ratings_count", default: 0, null: false
     t.integer "servings", default: 2, null: false
     t.string "source", default: "seed"
     t.string "tags", default: [], array: true
     t.datetime "updated_at", null: false
+    t.index ["average_rating"], name: "index_recipes_on_average_rating"
     t.index ["difficulty"], name: "index_recipes_on_difficulty"
     t.index ["is_gluten_free"], name: "index_recipes_on_is_gluten_free"
     t.index ["is_vegan"], name: "index_recipes_on_is_vegan"
     t.index ["is_vegetarian"], name: "index_recipes_on_is_vegetarian"
     t.index ["meal_type"], name: "index_recipes_on_meal_type"
     t.index ["name"], name: "index_recipes_on_name"
+    t.index ["ratings_count"], name: "index_recipes_on_ratings_count"
     t.index ["tags"], name: "index_recipes_on_tags", using: :gin
   end
 
@@ -339,6 +343,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_000003) do
     t.index ["zip_code"], name: "index_user_preferences_on_zip_code"
   end
 
+  create_table "user_recipe_preferences", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "cooked_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "last_cooked_at"
+    t.boolean "liked"
+    t.integer "rating"
+    t.uuid "recipe_id", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["liked"], name: "index_user_recipe_preferences_on_liked"
+    t.index ["rating"], name: "index_user_recipe_preferences_on_rating"
+    t.index ["recipe_id"], name: "index_user_recipe_preferences_on_recipe_id"
+    t.index ["user_id", "recipe_id"], name: "index_user_recipe_preferences_on_user_id_and_recipe_id", unique: true
+    t.index ["user_id"], name: "index_user_recipe_preferences_on_user_id"
+  end
+
   create_table "user_stores", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.boolean "primary", default: false, null: false
@@ -386,6 +406,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_000003) do
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "stores", "stores", column: "parent_store_id"
   add_foreign_key "user_preferences", "users"
+  add_foreign_key "user_recipe_preferences", "recipes"
+  add_foreign_key "user_recipe_preferences", "users"
   add_foreign_key "user_stores", "stores"
   add_foreign_key "user_stores", "users"
 end
