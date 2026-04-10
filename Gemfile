@@ -24,7 +24,7 @@ gem "bcrypt", "~> 3.1.7"
 
 # OmniAuth for Google OAuth2 sign-in
 gem "omniauth-google-oauth2", "~> 1.1"
-gem "omniauth-rails_csrf_protection", "~> 1.0"
+gem "omniauth-rails_csrf_protection", "~> 2.0"
 
 # Pagination — lightweight, Turbo-friendly
 gem "pagy", "~> 9.0"
