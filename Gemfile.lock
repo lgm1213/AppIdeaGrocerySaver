@@ -469,6 +469,7 @@ DEPENDENCIES
   debug
   factory_bot_rails
   faker
+  faraday (~> 2.0)
   ferrum (~> 0.17)
   image_processing (~> 1.2)
   importmap-rails

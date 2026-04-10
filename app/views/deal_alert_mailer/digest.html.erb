@@ -1,0 +1,35 @@
+<p>Hi <%= @user.name %>,</p>
+
+<p>
+  Great news — <strong><%= @deals.size %> ingredient<%= 's' if @deals.size != 1 %></strong>
+  you use in your favorite recipes <%= @deals.size == 1 ? 'is' : 'are' %> on sale this week.
+</p>
+
+<table style="width:100%; border-collapse:collapse; margin:16px 0;">
+  <thead>
+    <tr style="background:#f3f4f6; text-align:left;">
+      <th style="padding:8px 12px;">Deal</th>
+      <th style="padding:8px 12px;">Ingredient</th>
+      <th style="padding:8px 12px;">Savings</th>
+      <th style="padding:8px 12px;">Store</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @deals.each do |deal| %>
+      <tr style="border-top:1px solid #e5e7eb;">
+        <td style="padding:8px 12px;"><%= deal.name %></td>
+        <td style="padding:8px 12px;"><%= deal.ingredient&.name %></td>
+        <td style="padding:8px 12px; color:#16a34a;"><strong><%= deal.savings_display %></strong></td>
+        <td style="padding:8px 12px;"><%= deal.store&.name %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<p>
+  <%= link_to "View all current deals", deals_url %> to plan your meals around this week's savings.
+</p>
+
+<p style="color:#6b7280; font-size:0.875em;">
+  You're receiving this because you've liked or rated recipes in GrocerySaver.
+</p>

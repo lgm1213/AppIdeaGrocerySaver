@@ -62,6 +62,7 @@ test:
   primary: &primary_test
     <<: *default
     database: app_idea_grocery_saver_test
+    url: <%= "#{ENV['DATABASE_URL']}/app_idea_grocery_saver_test" if ENV['DATABASE_URL'].present? %>
   queue:
     <<: *primary_test
     migrations_paths: db/queue_migrate

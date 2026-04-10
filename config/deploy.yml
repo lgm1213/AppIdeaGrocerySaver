@@ -1,13 +1,29 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # GrocerySaver — Kamal deploy config
 #
-# TODO items before first real deploy:
-#   1. Replace YOUR_DOCKERHUB_USER with your Docker Hub username
-#   2. Replace YOUR_SERVER_IP with the VPS public IP
-#   3. Replace YOUR_DOMAIN with the app domain (e.g. grocerysaver.app)
-#   4. Uncomment the proxy block once DNS + SSL cert is ready
-#   5. Change ssh.user from root to a hardened deploy user
-#   6. Add KAMAL_REGISTRY_PASSWORD + POSTGRES_PASSWORD to your secrets manager
+# ── Pre-deploy checklist ──────────────────────────────────────────────────────
+#
+# Step 1 — Fill in placeholders in this file (search for YOUR_):
+#   • YOUR_DOCKERHUB_USER  → your Docker Hub username
+#   • YOUR_SERVER_IP       → public IP of your Ubuntu 22.04+ VPS
+#   • YOUR_DOMAIN          → your domain (e.g. grocerysaver.app)
+#
+# Step 2 — Uncomment the proxy: block below once DNS A record points to
+#          YOUR_SERVER_IP (Kamal will provision a Let's Encrypt cert).
+#
+# Step 3 — Export secrets in your shell before running kamal:
+#   export KAMAL_REGISTRY_PASSWORD="<docker hub token>"
+#   export POSTGRES_PASSWORD="<strong random password>"
+#   (RAILS_MASTER_KEY is read automatically from config/master.key)
+#
+# Step 4 — First deploy:
+#   kamal setup          # provisions server, installs Docker, starts accessories
+#   kamal deploy         # builds image, pushes to registry, deploys
+#
+# Step 5 — After first deploy:
+#   kamal app exec "bin/rails db:seed"   # seeds Publix stores + demo user
+#   kamal app exec "bin/rails runner 'FetchDealsJob.perform_now'"  # first scrape
+#
 # ─────────────────────────────────────────────────────────────────────────────
 
 service: grocery_saver

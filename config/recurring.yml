@@ -9,3 +9,9 @@ production:
     class: FetchDealsJob
     schedule: every week on wednesday at 8am
     description: "Scrapes Publix weekly ad and matches deals to ingredients"
+
+  # ── Deal alerts — every Wednesday at 10:00 AM (after scrape + match) ────
+  send_deal_alerts:
+    class: SendDealAlertsJob
+    schedule: every week on wednesday at 10am
+    description: "Emails users whose liked/rated recipe ingredients are on sale this week"

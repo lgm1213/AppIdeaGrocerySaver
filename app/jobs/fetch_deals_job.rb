@@ -32,6 +32,8 @@ class FetchDealsJob < ApplicationJob
   def scraper_for(store)
     case store.chain
     when "publix" then Scrapers::PublixScraper.new(store)
+    when "kroger" then Scrapers::KrogerScraper.new(store)
+    when "aldi"   then Scrapers::AldiScraper.new(store)
     else
       Rails.logger.warn("[FetchDealsJob] No scraper for chain: #{store.chain}")
       nil

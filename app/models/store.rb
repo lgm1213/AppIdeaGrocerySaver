@@ -7,7 +7,7 @@ class Store < ApplicationRecord
   has_many :user_stores, dependent: :destroy
   has_many :users, through: :user_stores
 
-  CHAINS = %w[publix kroger walmart target].freeze
+  CHAINS = %w[publix kroger aldi walmart target].freeze
 
   validates :chain, presence: true, inclusion: { in: CHAINS }
   validates :name,  presence: true

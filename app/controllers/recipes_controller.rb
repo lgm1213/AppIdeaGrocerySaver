@@ -22,6 +22,23 @@ class RecipesController < ApplicationController
     @user_rated       = @preference&.rating.present?
   end
 
+  def new
+    @submission  = Recipes::Submission.new
+    @ingredients = Ingredient.order(:name)
+  end
+
+  def create
+    @submission  = Recipes::Submission.new(submission_params)
+    @ingredients = Ingredient.order(:name)
+    recipe       = @submission.save
+
+    if recipe
+      redirect_to recipe_path(recipe), notice: "Recipe added successfully!"
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def base_recipes
@@ -67,6 +84,14 @@ class RecipesController < ApplicationController
         .where(store_id: store_ids)
         .where(ingredient_id: recipe.ingredients.pluck(:id))
         .includes(:ingredient)
+  end
+
+  def submission_params
+    params.require(:recipes_submission).permit(
+      :name, :meal_type, :difficulty, :servings, :description,
+      :prep_time_minutes, :cook_time_minutes, :cuisine,
+      ingredient_rows: [ :ingredient_id, :quantity, :unit ]
+    )
   end
 
   def preference_map_for(recipes)

@@ -1,0 +1,133 @@
+<% content_for :page_title, "Add a Recipe" %>
+<% content_for :page_subtitle, "Share a recipe with the community" %>
+
+<div style="max-width: 48rem; margin: 0 auto;">
+
+  <%= form_with model: @submission, url: recipes_path,
+        data: { controller: "ingredient-rows" } do |f| %>
+
+    <%# Errors %>
+    <% if @submission.errors.any? %>
+      <div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:0.5rem; padding:1rem; margin-bottom:1.5rem;">
+        <p style="font-weight:600; color:#dc2626; margin-bottom:0.5rem;">Please fix the following:</p>
+        <ul style="margin:0; padding-left:1.25rem; color:#dc2626;">
+          <% @submission.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%# ── Basic info ─────────────────────────────────────────────────────── %>
+    <section style="background:#fff; border:1px solid #e8e9d4; border-radius:0.75rem; padding:1.5rem; margin-bottom:1.5rem;">
+      <h2 style="font-size:1rem; font-weight:600; color:#373928; margin-bottom:1rem;">Recipe Details</h2>
+
+      <div style="display:grid; gap:1rem;">
+
+        <div>
+          <%= f.label :name, "Recipe Name *", style: "display:block; font-size:0.875rem; font-weight:500; color:#373928; margin-bottom:0.25rem;" %>
+          <%= f.text_field :name, placeholder: "e.g. Lemon Herb Chicken",
+                style: "width:100%; padding:0.5rem 0.75rem; border:1px solid #e8e9d4; border-radius:0.5rem; font-size:0.875rem; box-sizing:border-box;" %>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div>
+            <%= f.label :meal_type, "Meal Type *", style: "display:block; font-size:0.875rem; font-weight:500; color:#373928; margin-bottom:0.25rem;" %>
+            <%= f.select :meal_type, Recipe::MEAL_TYPES.map { |t| [t.capitalize, t] },
+                  { include_blank: "Select…" },
+                  style: "width:100%; padding:0.5rem 0.75rem; border:1px solid #e8e9d4; border-radius:0.5rem; font-size:0.875rem; background:#fff;" %>
+          </div>
+          <div>
+            <%= f.label :difficulty, "Difficulty", style: "display:block; font-size:0.875rem; font-weight:500; color:#373928; margin-bottom:0.25rem;" %>
+            <%= f.select :difficulty, Recipe::DIFFICULTIES.map { |d| [d.capitalize, d] },
+                  { selected: "easy" },
+                  style: "width:100%; padding:0.5rem 0.75rem; border:1px solid #e8e9d4; border-radius:0.5rem; font-size:0.875rem; background:#fff;" %>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+          <div>
+            <%= f.label :servings, "Servings", style: "display:block; font-size:0.875rem; font-weight:500; color:#373928; margin-bottom:0.25rem;" %>
+            <%= f.number_field :servings, value: 2, min: 1,
+                style: "width:100%; padding:0.5rem 0.75rem; border:1px solid #e8e9d4; border-radius:0.5rem; font-size:0.875rem; box-sizing:border-box;" %>
+          </div>
+          <div>
+            <%= f.label :prep_time_minutes, "Prep (min)", style: "display:block; font-size:0.875rem; font-weight:500; color:#373928; margin-bottom:0.25rem;" %>
+            <%= f.number_field :prep_time_minutes, min: 0,
+                style: "width:100%; padding:0.5rem 0.75rem; border:1px solid #e8e9d4; border-radius:0.5rem; font-size:0.875rem; box-sizing:border-box;" %>
+          </div>
+          <div>
+            <%= f.label :cook_time_minutes, "Cook (min)", style: "display:block; font-size:0.875rem; font-weight:500; color:#373928; margin-bottom:0.25rem;" %>
+            <%= f.number_field :cook_time_minutes, min: 0,
+                style: "width:100%; padding:0.5rem 0.75rem; border:1px solid #e8e9d4; border-radius:0.5rem; font-size:0.875rem; box-sizing:border-box;" %>
+          </div>
+        </div>
+
+        <div>
+          <%= f.label :cuisine, "Cuisine", style: "display:block; font-size:0.875rem; font-weight:500; color:#373928; margin-bottom:0.25rem;" %>
+          <%= f.text_field :cuisine, placeholder: "e.g. Italian, Mexican, American…",
+              style: "width:100%; padding:0.5rem 0.75rem; border:1px solid #e8e9d4; border-radius:0.5rem; font-size:0.875rem; box-sizing:border-box;" %>
+        </div>
+
+        <div>
+          <%= f.label :description, "Description", style: "display:block; font-size:0.875rem; font-weight:500; color:#373928; margin-bottom:0.25rem;" %>
+          <%= f.text_area :description, rows: 3, placeholder: "Brief description of this recipe…",
+              style: "width:100%; padding:0.5rem 0.75rem; border:1px solid #e8e9d4; border-radius:0.5rem; font-size:0.875rem; box-sizing:border-box; resize:vertical;" %>
+        </div>
+
+      </div>
+    </section>
+
+    <%# ── Ingredients ─────────────────────────────────────────────────────── %>
+    <section style="background:#fff; border:1px solid #e8e9d4; border-radius:0.75rem; padding:1.5rem; margin-bottom:1.5rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <h2 style="font-size:1rem; font-weight:600; color:#373928; margin:0;">Ingredients *</h2>
+        <button type="button"
+                data-action="ingredient-rows#addRow"
+                style="padding:0.375rem 0.875rem; background:#5c6e2e; color:#fff; border:none; border-radius:0.5rem; font-size:0.8125rem; cursor:pointer;">
+          + Add Ingredient
+        </button>
+      </div>
+
+      <%# Column headers %>
+      <div style="display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:0.5rem; margin-bottom:0.5rem;">
+        <span style="font-size:0.75rem; font-weight:600; color:#6b7280; text-transform:uppercase;">Ingredient</span>
+        <span style="font-size:0.75rem; font-weight:600; color:#6b7280; text-transform:uppercase;">Qty</span>
+        <span style="font-size:0.75rem; font-weight:600; color:#6b7280; text-transform:uppercase;">Unit</span>
+        <span></span>
+      </div>
+
+      <div data-ingredient-rows-target="list">
+        <%= render "recipes/ingredient_row",
+              index: 0,
+              ingredient_id: nil,
+              quantity: nil,
+              unit: nil,
+              ingredients: @ingredients %>
+      </div>
+
+    </section>
+
+    <%# Template row — hidden, cloned by Stimulus. Must be inside the controller
+        element (the form) so Stimulus can find it as a target. The <template>
+        element's content is inert and its inputs are never submitted. %>
+    <template data-ingredient-rows-target="template">
+      <%= render "recipes/ingredient_row",
+            index: "__INDEX__",
+            ingredient_id: nil,
+            quantity: nil,
+            unit: nil,
+            ingredients: @ingredients %>
+    </template>
+
+    <%# ── Submit ──────────────────────────────────────────────────────────── %>
+    <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+      <%= link_to "Cancel", recipes_path,
+            style: "padding:0.625rem 1.25rem; border:1px solid #e8e9d4; border-radius:0.5rem; font-size:0.875rem; color:#6b7280; text-decoration:none;" %>
+      <%= f.submit "Add Recipe",
+            style: "padding:0.625rem 1.5rem; background:#5c6e2e; color:#fff; border:none; border-radius:0.5rem; font-size:0.875rem; font-weight:600; cursor:pointer;" %>
+    </div>
+
+  <% end %>
+
+</div>

@@ -1,6 +1,11 @@
 <% content_for :page_title, "Recipes" %>
 <% content_for :page_subtitle, "Browse, rate, and personalize your meal suggestions" %>
 
+<div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+  <%= link_to "+ Add a Recipe", new_recipe_path,
+        style: "padding:0.5rem 1.125rem; background:#5c6e2e; color:#fff; border-radius:0.5rem; font-size:0.875rem; font-weight:600; text-decoration:none;" %>
+</div>
+
 <%# ── Filter bar ──────────────────────────────────────────────────────────── %>
 <%= form_with url: recipes_path, method: :get, data: { turbo_frame: "_top" },
       style: "display: flex; flex-wrap: wrap; align-items: center; gap: 0.625rem; margin-bottom: 1.5rem;" do |f| %>

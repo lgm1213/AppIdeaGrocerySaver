@@ -92,7 +92,7 @@ Rails.application.routes.draw do
     end
 
     # Recipes
-    resources :recipes, only: [ :index, :show ] do
+    resources :recipes, only: [ :index, :show, :new, :create ] do
       resource :rating, only: [], controller: "recipe_ratings" do
         post :upsert
       end

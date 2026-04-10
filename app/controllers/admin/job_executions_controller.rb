@@ -48,7 +48,6 @@ module Admin
 
     def destroy
       @job = SolidQueue::Job.find(params[:id])
-      @job.failed_executions.destroy_all
       @job.destroy!
       redirect_to admin_job_executions_path, notice: "Job discarded."
     end

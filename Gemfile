@@ -29,8 +29,11 @@ gem "omniauth-rails_csrf_protection", "~> 1.0"
 # Pagination — lightweight, Turbo-friendly
 gem "pagy", "~> 9.0"
 
-# Headless Chrome for web scraping (Publix weekly ad)
+# Headless Chrome for web scraping (Publix + Aldi weekly ads)
 gem "ferrum", "~> 0.17"
+
+# HTTP client for Kroger Developer API
+gem "faraday", "~> 2.0"
 
 # Zip code validation for onboarding
 gem "validates_zipcode", "~> 0.5"

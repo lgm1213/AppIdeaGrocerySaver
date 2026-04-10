@@ -1,0 +1,15 @@
+Hi <%= @user.name %>,
+
+Great news — <%= @deals.size %> ingredient<%= 's' if @deals.size != 1 %> you use in your
+favorite recipes <%= @deals.size == 1 ? 'is' : 'are' %> on sale this week.
+
+<% @deals.each do |deal| %>
+* <%= deal.name %>
+  Ingredient: <%= deal.ingredient&.name %>
+  Savings:    <%= deal.savings_display %>
+  Store:      <%= deal.store&.name %>
+<% end %>
+
+View all current deals: <%= deals_url %>
+
+You're receiving this because you've liked or rated recipes in GrocerySaver.

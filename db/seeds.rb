@@ -726,6 +726,26 @@ end
 
 puts "  → #{Store.where(chain: 'publix').count} Publix store records total"
 
+# ── Kroger chain-wide record ─────────────────────────────────────────────────
+# TODO: verify DOM selectors in Scrapers::KrogerScraper before running FetchDealsJob
+kroger = Store.find_or_create_by!(chain: "kroger", store_number: nil) do |s|
+  s.name       = "Kroger"
+  s.scrape_url = "https://www.kroger.com/d/weekly-ad"
+  s.city       = nil
+  s.state      = nil
+end
+puts "  → Kroger chain-wide store: #{kroger.name}"
+
+# ── Aldi chain-wide record ───────────────────────────────────────────────────
+# TODO: verify DOM selectors in Scrapers::AldiScraper before running FetchDealsJob
+aldi = Store.find_or_create_by!(chain: "aldi", store_number: nil) do |s|
+  s.name       = "Aldi"
+  s.scrape_url = "https://www.aldi.us/en/weekly-specials/"
+  s.city       = nil
+  s.state      = nil
+end
+puts "  → Aldi chain-wide store: #{aldi.name}"
+
 # Wire demo user to the chain-wide Publix store
 if Rails.env.development?
   demo = User.find_by(email_address: "demo@saveandsavor.com")
