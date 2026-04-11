@@ -69,10 +69,92 @@ ingredients_data.each do |attrs|
   end
 end
 
-puts "  → #{Ingredient.count} ingredients"
+puts "  -> #{Ingredient.count} ingredients"
 
 # ─────────────────────────────────────────────────────────────────────────────
-puts "🍳  Seeding recipes…"
+puts "Seeding ingredient keywords..."
+
+# Keywords expand what the IngredientMatcher can match against scraped deal
+# names. Each entry maps an ingredient name (must match seeds above, case-
+# insensitive) to additional search terms beyond the ingredient's own name.
+#
+# Rules:
+#   - Keep terms lowercase — the matcher lowercases both sides before comparing.
+#   - Prefer shorter, more general terms over exact brand phrases.
+#   - Add a term only when it unambiguously refers to THIS ingredient category.
+#   - Do NOT add terms that bleed into other ingredients (e.g. "chicken"
+#     should NOT be on the Chicken Breast list; it belongs on the Chicken entry).
+INGREDIENT_KEYWORDS = {
+  # -- Produce ------------------------------------------------------------------
+  "Avocado"           => %w[avocado avocados],
+  "Baby Spinach"      => [ "baby spinach", "spinach", "spinach leaves" ],
+  "Bell Pepper"       => [ "bell pepper", "sweet pepper", "capsicum" ],
+  "Broccoli"          => %w[broccoli],
+  "Cherry Tomatoes"   => [ "cherry tomato", "cherry tomatoes", "grape tomato", "grape tomatoes" ],
+  "Garlic"            => %w[garlic],
+  "Lemon"             => %w[lemon lemons],
+  "Onion"             => %w[onion onions],
+  "Sweet Potato"      => [ "sweet potato", "sweet potatoes", "yam" ],
+  "Zucchini"          => %w[zucchini squash courgette],
+  "Banana"            => %w[banana bananas],
+  "Blueberries"       => %w[blueberry blueberries],
+  "Kale"              => %w[kale],
+
+  # -- Dairy --------------------------------------------------------------------
+  "Cheddar Cheese"    => [ "cheddar", "cheddar cheese", "sharp cheddar", "mild cheddar" ],
+  "Eggs"              => %w[eggs egg],
+  "Greek Yogurt"      => [ "greek yogurt", "greek yoghurt", "plain yogurt", "strained yogurt" ],
+  "Milk"              => %w[milk],
+  "Parmesan"          => [ "parmesan", "parmigiano", "parmesan cheese", "romano" ],
+  "Butter"            => %w[butter],
+
+  # -- Meat ---------------------------------------------------------------------
+  # NOTE: "chicken breast" is more specific than "chicken" so the matcher's
+  # longest-term ranking ensures "Chicken Breast" beats "Chicken" for the same deal.
+  "Chicken Breast"    => [ "chicken breast", "boneless chicken", "skinless chicken breast",
+                          "chicken tender", "chicken tenderloin", "chicken cutlet" ],
+  "Ground Beef"       => [ "ground beef", "lean ground beef", "hamburger meat",
+                          "beef patty", "ground chuck" ],
+  "Ground Turkey"     => [ "ground turkey", "lean ground turkey", "turkey patty" ],
+  "Bacon"             => %w[bacon],
+
+  # -- Seafood ------------------------------------------------------------------
+  "Salmon Fillet"     => [ "salmon", "salmon fillet", "atlantic salmon", "sockeye salmon" ],
+  "Shrimp"            => %w[shrimp prawns],
+  "Tuna (Canned)"     => [ "tuna", "canned tuna", "chunk light tuna", "albacore tuna" ],
+
+  # -- Pantry -------------------------------------------------------------------
+  "Black Beans"       => [ "black beans", "black bean" ],
+  "Brown Rice"        => [ "brown rice", "whole grain rice" ],
+  "Chickpeas"         => %w[chickpeas chickpea garbanzo garbanzos],
+  "Coconut Milk"      => [ "coconut milk", "coconut cream", "lite coconut milk" ],
+  "Diced Tomatoes"    => [ "diced tomatoes", "diced tomato", "crushed tomatoes", "stewed tomatoes" ],
+  "Olive Oil"         => [ "olive oil", "extra virgin olive oil", "evoo" ],
+  "Pasta"             => %w[pasta spaghetti penne fettuccine linguine rotini rigatoni],
+  "Quinoa"            => %w[quinoa],
+  "Rolled Oats"       => [ "rolled oats", "old fashioned oats", "quick oats", "oatmeal", "oats" ],
+  "Soy Sauce"         => [ "soy sauce", "shoyu", "tamari", "low sodium soy sauce" ],
+  "Vegetable Broth"   => [ "vegetable broth", "veggie broth", "vegetable stock" ],
+
+  # -- Bakery -------------------------------------------------------------------
+  "Whole Wheat Bread" => [ "whole wheat bread", "whole grain bread", "wheat bread",
+                          "multigrain bread", "bread", "loaf", "sandwich bread" ],
+  "Tortillas"         => %w[tortilla tortillas wraps flatbread]
+}.freeze
+
+INGREDIENT_KEYWORDS.each do |name, keywords|
+  rows = Ingredient.where("LOWER(name) = ?", name.downcase)
+  if rows.any?
+    rows.update_all(keywords: keywords)
+  else
+    puts "  WARNING: Ingredient not found for keyword mapping: #{name}"
+  end
+end
+
+puts "  -> keywords applied to #{INGREDIENT_KEYWORDS.size} ingredients"
+
+# ─────────────────────────────────────────────────────────────────────────────
+puts "Seeding recipes..."
 
 recipes_data = [
   # ── BREAKFAST ──────────────────────────────────────────────────────────────
