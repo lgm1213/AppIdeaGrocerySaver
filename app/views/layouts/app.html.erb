@@ -22,14 +22,46 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen flex" style="background-color: #fefee5; font-family: 'Be Vietnam Pro', sans-serif;">
+  <style>
+    /* Mobile sidebar drawer */
+    @media (max-width: 768px) {
+      #app-sidebar {
+        position: fixed !important;
+        top: 0; left: 0;
+        height: 100vh;
+        z-index: 40;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+      }
+      #app-sidebar[data-open="true"] {
+        transform: translateX(0);
+      }
+      #sidebar-hamburger { display: flex !important; }
+    }
+    @media (min-width: 769px) {
+      #sidebar-backdrop  { display: none !important; }
+      #sidebar-hamburger { display: none !important; }
+    }
+  </style>
+
+  <body class="min-h-screen flex" style="background-color: #fefee5; font-family: 'Be Vietnam Pro', sans-serif;"
+        data-controller="sidebar recipe-modal">
+
+    <%# Mobile backdrop — click to close sidebar %>
+    <div
+      id="sidebar-backdrop"
+      data-sidebar-target="backdrop"
+      data-action="click->sidebar#close"
+      style="display: none; position: fixed; inset: 0; z-index: 39; background: rgba(55,57,40,0.45);"
+    ></div>
 
     <%# ── Sidebar ──────────────────────────────────────────────────────── %>
     <aside
       id="app-sidebar"
       class="flex-shrink-0 flex flex-col"
       style="width: 16rem; min-height: 100vh; background-color: #fbfbe0; padding: 1.5rem 1rem;"
-      data-controller="sidebar"
+      data-sidebar-target="panel"
     >
       <%# Logo %>
       <div style="padding: 0 0.5rem; margin-bottom: 2.5rem;">
@@ -197,7 +229,21 @@
     <%# ── Main content area ───────────────────────────────────────────── %>
     <div class="flex-1 flex flex-col min-w-0">
       <%# Top bar %>
-      <header style="background-color: #fbfbe0; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 30; backdrop-filter: blur(12px);">
+      <header style="background-color: #fbfbe0; padding: 1rem 1.25rem 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 30; backdrop-filter: blur(12px);">
+        <%# Hamburger — mobile only, shown via CSS %>
+        <button
+          id="sidebar-hamburger"
+          type="button"
+          style="display: none; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; background: transparent; border: none; border-radius: 0.5rem; cursor: pointer; margin-right: 0.75rem; flex-shrink: 0; color: #373928;"
+          data-action="click->sidebar#toggle"
+          aria-label="Toggle navigation"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
         <div>
           <% if content_for?(:page_title) %>
             <h1 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.375rem; font-weight: 700; color: #373928; margin: 0; letter-spacing: -0.02em;">
@@ -241,6 +287,45 @@
 
       <%# Turbo Stream target for post-cook rating prompts %>
       <div id="rating_prompts" style="position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; z-index: 50; max-width: 22rem;"></div>
+    </div>
+
+    <%# ── Global recipe quick-view modal ──────────────────────────────── %>
+    <div
+      id="recipe-quick-view-modal"
+      style="display: none; position: fixed; inset: 0; z-index: 50; overflow-y: auto;"
+      data-controller="modal"
+      aria-modal="true"
+      role="dialog"
+      aria-label="Recipe quick view"
+    >
+      <div
+        style="position: fixed; inset: 0; background: rgba(55, 57, 40, 0.5); backdrop-filter: blur(4px);"
+        data-action="click->recipe-modal#close"
+      ></div>
+
+      <div style="position: relative; z-index: 10; margin: 3rem auto; max-width: 36rem; padding: 0 1rem;">
+        <div class="card" style="padding: 0;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e8e9d4;">
+            <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0;">Recipe</h2>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              data-action="click->recipe-modal#close"
+              aria-label="Close"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <%= turbo_frame_tag "recipe_quick_view",
+                style: "display: block; min-height: 8rem;",
+                loading: :lazy do %>
+            <p style="padding: 2rem; text-align: center; color: #81826d; font-size: 0.875rem;">Loading…</p>
+          <% end %>
+        </div>
+      </div>
     </div>
 
   </body>

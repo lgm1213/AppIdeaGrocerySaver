@@ -48,41 +48,54 @@
     <span style="font-size: 0.6875rem; color: #81826d;"><%= entry.recipe.total_time_label %></span>
   </div>
 
-  <%# Hover actions — shown via CSS group-hover %>
+  <%# Hover actions — 2×2 grid to keep cards compact %>
   <div
     class="slot-actions"
-    style="position: absolute; inset: 0; background: rgba(255,255,255,0.92); border-radius: inherit; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 0.375rem; padding: 0.5rem;"
+    style="position: absolute; inset: 0; background: rgba(255,255,255,0.92); border-radius: inherit; display: none; flex-direction: column; align-items: stretch; justify-content: center; gap: 0.3rem; padding: 0.4rem;"
     data-slot-card-target="actions"
   >
-    <%# Toggle cooked %>
-    <%= button_to toggle_cooked_meal_plan_meal_plan_entry_path(meal_plan, entry),
-          method: :patch,
-          class: "btn btn-sm #{entry.cooked? ? 'btn-surface' : 'btn-primary'}",
-          style: "width: 100%; font-size: 0.6875rem;",
-          data: { turbo_stream: true } do %>
-      <%= entry.cooked? ? "Unmark" : "Mark Cooked" %>
-    <% end %>
+    <%# Top row: View + Cook %>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem;">
+      <button
+        type="button"
+        class="btn btn-sm btn-surface"
+        style="font-size: 0.625rem; padding: 0.3rem 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+        data-action="click->recipe-modal#open"
+        data-recipe-modal-recipe-id-param="<%= entry.recipe_id %>"
+      >
+        View Recipe
+      </button>
 
-    <%# Swap recipe — opens picker modal %>
-    <button
-      type="button"
-      class="btn btn-sm btn-outline"
-      style="width: 100%; font-size: 0.6875rem;"
-      data-action="click->calendar#openPicker"
-      data-day="<%= entry.day_of_week %>"
-      data-slot="<%= entry.meal_slot %>"
-      data-entry-id="<%= entry.id %>"
-    >
-      Swap Recipe
-    </button>
+      <%= button_to toggle_cooked_meal_plan_meal_plan_entry_path(meal_plan, entry),
+            method: :patch,
+            class: "btn btn-sm #{entry.cooked? ? 'btn-surface' : 'btn-primary'}",
+            style: "font-size: 0.625rem; padding: 0.3rem 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;",
+            data: { turbo_stream: true } do %>
+        <%= entry.cooked? ? "Unmark" : "Mark Cooked" %>
+      <% end %>
+    </div>
 
-    <%# Remove %>
-    <%= button_to meal_plan_meal_plan_entry_path(meal_plan, entry),
-          method: :delete,
-          class: "btn btn-sm btn-ghost",
-          style: "width: 100%; font-size: 0.6875rem; color: #c22225;",
-          data: { turbo_stream: true, turbo_confirm: "Remove this recipe?" } do %>
-      Remove
-    <% end %>
+    <%# Bottom row: Swap + Remove %>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem;">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline"
+        style="font-size: 0.625rem; padding: 0.3rem 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+        data-action="click->calendar#openPicker"
+        data-day="<%= entry.day_of_week %>"
+        data-slot="<%= entry.meal_slot %>"
+        data-entry-id="<%= entry.id %>"
+      >
+        Swap
+      </button>
+
+      <%= button_to meal_plan_meal_plan_entry_path(meal_plan, entry),
+            method: :delete,
+            class: "btn btn-sm btn-ghost",
+            style: "font-size: 0.625rem; padding: 0.3rem 0.25rem; color: #c22225; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;",
+            data: { turbo_stream: true, turbo_confirm: "Remove this recipe?" } do %>
+        Remove
+      <% end %>
+    </div>
   </div>
 </div>

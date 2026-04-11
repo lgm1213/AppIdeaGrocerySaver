@@ -16,10 +16,15 @@ class RecipesController < ApplicationController
   end
 
   def show
-    @recipe           = Recipe.includes(:ingredients, :recipe_ingredients).find(params[:id])
-    @preference       = Current.user.user_recipe_preferences.find_by(recipe_id: @recipe.id)
-    @on_sale_deals    = on_sale_deals_for(@recipe)
-    @user_rated       = @preference&.rating.present?
+    @recipe        = Recipe.includes(:ingredients, :recipe_ingredients).find(params[:id])
+    @preference    = Current.user.user_recipe_preferences.find_by(recipe_id: @recipe.id)
+    @on_sale_deals = on_sale_deals_for(@recipe)
+    @user_rated    = @preference&.rating.present?
+
+    if turbo_frame_request? && request.headers["Turbo-Frame"] == "recipe_quick_view"
+      render partial: "recipes/quick_view",
+             locals: { recipe: @recipe, on_sale_deals: @on_sale_deals }
+    end
   end
 
   def new

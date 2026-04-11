@@ -10,9 +10,16 @@
   <%# Recipe name %>
   <div style="flex: 1; min-width: 0;">
     <% if entry.filled? %>
-      <p style="font-size: 0.9375rem; font-weight: 600; color: <%= entry.cooked? ? '#81826d' : '#373928' %>; margin: 0; <%= entry.cooked? ? 'text-decoration: line-through;' : '' %>">
-        <%= entry.recipe.name %>
-      </p>
+      <button
+        type="button"
+        style="background: none; border: none; padding: 0; cursor: pointer; text-align: left; display: block; width: 100%;"
+        data-action="click->recipe-modal#open"
+        data-recipe-modal-recipe-id-param="<%= entry.recipe_id %>"
+      >
+        <p style="font-size: 0.9375rem; font-weight: 600; color: <%= entry.cooked? ? '#81826d' : '#1a7425' %>; margin: 0; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; <%= entry.cooked? ? 'text-decoration: line-through;' : '' %>">
+          <%= entry.recipe.name %>
+        </p>
+      </button>
       <p style="font-size: 0.75rem; color: #81826d; margin: 0;"><%= entry.recipe.total_time_label %></p>
     <% else %>
       <p style="font-size: 0.9375rem; color: #81826d; margin: 0;">Empty slot</p>

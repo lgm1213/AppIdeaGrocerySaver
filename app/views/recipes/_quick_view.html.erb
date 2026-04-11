@@ -1,0 +1,104 @@
+<turbo-frame id="recipe_quick_view" style="display: block;">
+  <div style="padding: 1.25rem 1.5rem;">
+
+    <%# Recipe name + type %>
+    <div style="margin-bottom: 1rem;">
+      <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.125rem; font-weight: 700; color: #373928; margin: 0 0 0.375rem;">
+        <%= recipe.name %>
+      </h3>
+      <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+        <span class="badge badge-green"><%= recipe.meal_type&.capitalize %></span>
+        <% if recipe.cuisine.present? %>
+          <span class="badge" style="background: #f3f4f6; color: #374151;"><%= recipe.cuisine %></span>
+        <% end %>
+        <% recipe.dietary_badges.each do |badge| %>
+          <span class="badge badge-green" style="font-size: 0.625rem;"><%= badge %></span>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Stats strip %>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; padding: 0.75rem 1rem; background: #f9fafb; border-radius: 0.625rem; margin-bottom: 1.25rem;">
+      <% if recipe.prep_time_minutes.present? && recipe.prep_time_minutes > 0 %>
+        <div style="text-align: center;">
+          <p style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #81826d; margin: 0 0 0.125rem;">Prep</p>
+          <p style="font-size: 0.875rem; font-weight: 700; color: #373928; margin: 0;"><%= recipe.prep_time_minutes %>m</p>
+        </div>
+      <% end %>
+      <% if recipe.cook_time_minutes.present? && recipe.cook_time_minutes > 0 %>
+        <div style="text-align: center;">
+          <p style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #81826d; margin: 0 0 0.125rem;">Cook</p>
+          <p style="font-size: 0.875rem; font-weight: 700; color: #373928; margin: 0;"><%= recipe.cook_time_minutes %>m</p>
+        </div>
+      <% end %>
+      <div style="text-align: center;">
+        <p style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #81826d; margin: 0 0 0.125rem;">Serves</p>
+        <p style="font-size: 0.875rem; font-weight: 700; color: #373928; margin: 0;"><%= recipe.servings %></p>
+      </div>
+      <div style="text-align: center;">
+        <p style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #81826d; margin: 0 0 0.125rem;">Est. Cost</p>
+        <p style="font-size: 0.875rem; font-weight: 700; color: #373928; margin: 0;"><%= recipe.cost_display %></p>
+      </div>
+      <div style="text-align: center;">
+        <p style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #81826d; margin: 0 0 0.125rem;">Difficulty</p>
+        <p style="font-size: 0.875rem; font-weight: 700; color: #373928; margin: 0; text-transform: capitalize;"><%= recipe.difficulty %></p>
+      </div>
+    </div>
+
+    <%# On-sale deals banner %>
+    <% if on_sale_deals.any? %>
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 0.875rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.5rem; margin-bottom: 1.25rem;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        <span style="font-size: 0.8125rem; font-weight: 600; color: #15803d;">
+          <%= on_sale_deals.count %> ingredient<%= on_sale_deals.count == 1 ? "" : "s" %> on sale this week
+        </span>
+      </div>
+    <% end %>
+
+    <%# Ingredients %>
+    <div style="margin-bottom: 1.25rem;">
+      <h4 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #81826d; margin: 0 0 0.625rem;">Ingredients</h4>
+      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.375rem;">
+        <% recipe.recipe_ingredients.each do |ri| %>
+          <% deal = on_sale_deals.find { |d| d.ingredient_id == ri.ingredient_id } %>
+          <li style="display: flex; align-items: center; justify-content: space-between; font-size: 0.875rem; padding: 0.25rem 0; border-bottom: 1px solid #f3f4f6;">
+            <span style="color: #373928;">
+              <% if ri.quantity %>
+                <span style="color: #81826d;"><%= ri.quantity %> <%= ri.unit %></span>
+              <% end %>
+              <%= ri.ingredient&.name %>
+            </span>
+            <% if deal %>
+              <span style="font-size: 0.6875rem; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 0.125rem 0.375rem; border-radius: 9999px; white-space: nowrap;">
+                <%= deal.savings_label %>
+              </span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+
+    <%# Instructions preview %>
+    <% if recipe.instructions.present? %>
+      <div style="margin-bottom: 1.25rem;">
+        <h4 style="font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #81826d; margin: 0 0 0.625rem;">Instructions</h4>
+        <p style="font-size: 0.875rem; color: #4a5040; line-height: 1.6; margin: 0;">
+          <%= recipe.instructions.truncate(320) %>
+        </p>
+      </div>
+    <% end %>
+
+    <%# Footer: full recipe link %>
+    <div style="padding-top: 0.875rem; border-top: 1px solid #e8e9d4; display: flex; justify-content: flex-end;">
+      <%= link_to recipe_path(recipe), data: { turbo_frame: "_top" }, style: "font-size: 0.875rem; font-weight: 600; color: #1a7425; text-decoration: none; display: flex; align-items: center; gap: 0.375rem;" do %>
+        View Full Recipe
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+      <% end %>
+    </div>
+
+  </div>
+</turbo-frame>
