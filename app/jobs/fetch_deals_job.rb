@@ -1,10 +1,14 @@
 class FetchDealsJob < ApplicationJob
   queue_as :default
 
-  # Pass a store_id to scrape one store, or nil to scrape all stale scrapeable stores.
-  def perform(store_id = nil)
+  # chain: (optional) limit scraping to one chain, e.g. "publix".
+  # store_id: (optional) limit to a single specific store record.
+  # Pass nothing to scrape all stale scrapeable stores across all chains.
+  def perform(store_id: nil, chain: nil)
     stores = if store_id
       Store.scrapeable.where(id: store_id)
+    elsif chain
+      Store.scrapeable.by_chain(chain).select(&:deals_stale?)
     else
       Store.scrapeable.select(&:deals_stale?)
     end
@@ -32,7 +36,14 @@ class FetchDealsJob < ApplicationJob
   def scraper_for(store)
     case store.chain
     when "publix" then Scrapers::PublixScraper.new(store)
-    when "kroger" then Scrapers::KrogerScraper.new(store)
+    when "kroger"
+      if store.store_number.blank?
+        Rails.logger.warn("[FetchDealsJob] Skipping Kroger store #{store.id} (#{store.name}): store_number not set. " \
+                          "Find the locationId via GET https://api.kroger.com/v1/locations?filter.zipCode=XXXXX")
+        nil
+      else
+        Scrapers::KrogerScraper.new(store)
+      end
     when "aldi"   then Scrapers::AldiScraper.new(store)
     else
       Rails.logger.warn("[FetchDealsJob] No scraper for chain: #{store.chain}")

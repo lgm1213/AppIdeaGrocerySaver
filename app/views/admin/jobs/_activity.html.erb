@@ -133,8 +133,7 @@
                 <td><span class="admin-badge admin-badge-gray"><%= exec.job.queue_name %></span></td>
                 <td style="color: #6b7280;"><%= time_ago_in_words(exec.created_at) %> ago</td>
                 <td style="font-size: 0.75rem; color: #dc2626; max-width: 20rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                  <% err = JSON.parse(exec.error) rescue nil %>
-                  <%= err&.dig("message")&.truncate(80) || exec.error&.truncate(80) || "—" %>
+                  <%= job_error_message(exec) %>
                 </td>
                 <td><%= link_to "→", admin_job_execution_path(exec.job_id), style: "color: #dc2626; font-weight: 600; text-decoration: none; font-size: 0.8125rem;" %></td>
               </tr>
