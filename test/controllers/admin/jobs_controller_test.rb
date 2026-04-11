@@ -25,7 +25,9 @@ class Admin::JobsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(@admin)
     get admin_jobs_path
     assert_response :success
-    assert_match "Fetch Publix Deals", response.body
+    assert_match "Publix", response.body
+    assert_match "Fetch Weekly Deals", response.body
+    assert_match "Full Pipeline", response.body
   end
 
   # ── status ─────────────────────────────────────────────────────────────────
