@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unsubscribe — Save &amp; Savor</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: #fefee5;
+        color: #373928;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #e8e9d4;
+        border-radius: 12px;
+        padding: 40px 36px;
+        max-width: 480px;
+        width: 100%;
+        text-align: center;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+      .logo-icon {
+        background-color: #1a7425;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 18px;
+        font-weight: bold;
+        flex-shrink: 0;
+      }
+      .logo-name {
+        font-size: 20px;
+        font-weight: 800;
+        color: #373928;
+      }
+      h1 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #373928;
+        margin-bottom: 12px;
+      }
+      .notice {
+        background: #dcfce7;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 14px 18px;
+        font-size: 15px;
+        color: #15803d;
+        margin-bottom: 20px;
+      }
+      p {
+        font-size: 15px;
+        color: #4a5040;
+        line-height: 1.6;
+        margin-bottom: 28px;
+      }
+      .already-off {
+        font-size: 15px;
+        color: #81826d;
+        margin-bottom: 28px;
+      }
+      .btn {
+        display: inline-block;
+        background-color: #b91c1c;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+      }
+      .btn:hover { background-color: #991b1b; }
+      .footer {
+        margin-top: 24px;
+        font-size: 12px;
+        color: #9ca3af;
+      }
+      .footer a { color: #1a7425; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="logo">
+        <div class="logo-icon">S</div>
+        <div class="logo-name">Save &amp; Savor</div>
+      </div>
+
+      <% if notice == "unsubscribed" %>
+        <div class="notice">You've been unsubscribed from deal alert emails.</div>
+        <p class="already-off">
+          You won't receive weekly deal digest emails anymore.<br>
+          You can re-enable them at any time from your account settings.
+        </p>
+      <% elsif @user.user_preference&.email_deal_alerts == false %>
+        <h1>Already unsubscribed</h1>
+        <p class="already-off">
+          You're not currently subscribed to deal alert emails.<br>
+          To re-enable them, visit your account settings.
+        </p>
+      <% else %>
+        <h1>Unsubscribe from deal alerts?</h1>
+        <p>
+          You'll stop receiving weekly deal digest emails from Save &amp; Savor.<br>
+          You can re-subscribe at any time from your account settings.
+        </p>
+
+        <%= form_with url: unsubscribe_path(params[:token]), method: :post do |f| %>
+          <%= f.submit "Unsubscribe me", class: "btn" %>
+        <% end %>
+      <% end %>
+
+      <div class="footer">
+        Save &amp; Savor &mdash; Helping you eat well and save money.
+      </div>
+    </div>
+  </body>
+</html>

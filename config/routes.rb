@@ -47,6 +47,10 @@ Rails.application.routes.draw do
     resource  :email_settings, only: [ :show, :edit, :update ]
   end
 
+  # ── Unsubscribe (no login required) ──────────────────────────────────────
+  get  "/unsubscribe/:token", to: "unsubscribes#show",   as: :unsubscribe
+  post "/unsubscribe/:token", to: "unsubscribes#update"
+
   # ── Notifications ─────────────────────────────────────────────────────────
   patch "/notifications/dismiss_deals", to: "notifications#dismiss_deals",
                                         as: :dismiss_deals_notification

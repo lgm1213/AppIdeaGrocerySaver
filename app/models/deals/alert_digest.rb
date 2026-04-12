@@ -13,6 +13,7 @@ module Deals
 
     def deliver
       return false unless relevant?
+      return false unless user.user_preference&.email_deal_alerts != false
 
       DealAlertMailer.digest(user, deals.to_a).deliver_later
       true

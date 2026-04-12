@@ -5,9 +5,11 @@ one:
   password_digest: <%= password_digest %>
   onboarding_complete: true
   onboarding_step: complete
+  unsubscribe_token: fixture_unsubscribe_token_one
 
 two:
   email_address: two@example.com
   password_digest: <%= password_digest %>
   onboarding_complete: true
   onboarding_step: complete
+  unsubscribe_token: fixture_unsubscribe_token_two

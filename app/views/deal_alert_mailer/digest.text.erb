@@ -12,4 +12,8 @@ favorite recipes <%= @deals.size == 1 ? 'is' : 'are' %> on sale this week.
 
 View all current deals: <%= deals_url %>
 
-You're receiving this because you've liked or rated recipes in GrocerySaver.
+You're receiving this because you've liked or rated recipes in Save & Savor.
+
+---
+To stop receiving deal alert emails:
+<%= @unsubscribe_url %>

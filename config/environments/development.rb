@@ -31,10 +31,9 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
-
-  # Make template changes take effect immediately.
+  # SMTP is managed via Admin › Email Settings (stored in system_settings DB table).
+  # config/initializers/smtp.rb loads those settings on boot via SystemSetting.apply_smtp!
+  config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_caching = false
 
   # Set localhost to be used by links generated in mailer templates.

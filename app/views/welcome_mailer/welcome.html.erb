@@ -1,0 +1,49 @@
+<h2 style="font-size:22px;font-weight:700;color:#373928;margin:0 0 8px;">Welcome to Save &amp; Savor, <%= @user.name %>!</h2>
+<p style="font-size:15px;color:#4a5040;margin:0 0 20px;line-height:1.6;">
+  We're glad you're here. Save &amp; Savor helps you plan meals around what's on sale at your local grocery stores — so you eat well and save money every week.
+</p>
+
+<p style="font-size:14px;font-weight:700;color:#373928;margin:0 0 12px;">Here's what you can do:</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+  <tr>
+    <td style="padding:10px 0;border-bottom:1px solid #e8e9d4;vertical-align:top;width:28px;">
+      <span style="color:#1a7425;font-size:16px;">&#10003;</span>
+    </td>
+    <td style="padding:10px 0 10px 10px;border-bottom:1px solid #e8e9d4;">
+      <strong style="color:#373928;font-size:14px;">Browse weekly deals</strong>
+      <span style="color:#4a5040;font-size:14px;"> — see what's on sale at stores near you</span>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:10px 0;border-bottom:1px solid #e8e9d4;vertical-align:top;width:28px;">
+      <span style="color:#1a7425;font-size:16px;">&#10003;</span>
+    </td>
+    <td style="padding:10px 0 10px 10px;border-bottom:1px solid #e8e9d4;">
+      <strong style="color:#373928;font-size:14px;">Generate a meal plan</strong>
+      <span style="color:#4a5040;font-size:14px;"> — recipes chosen to match what's discounted this week</span>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:10px 0;vertical-align:top;width:28px;">
+      <span style="color:#1a7425;font-size:16px;">&#10003;</span>
+    </td>
+    <td style="padding:10px 0 10px 10px;">
+      <strong style="color:#373928;font-size:14px;">Get deal alerts</strong>
+      <span style="color:#4a5040;font-size:14px;"> — we'll email you when your favorite ingredients go on sale</span>
+    </td>
+  </tr>
+</table>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+  <tr>
+    <td align="center">
+      <%= link_to "Go to your dashboard", dashboard_url,
+            style: "display:inline-block;background-color:#1a7425;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;" %>
+    </td>
+  </tr>
+</table>
+
+<p style="font-size:13px;color:#81826d;margin:0;line-height:1.5;">
+  If you have any questions, just reply to this email — we're happy to help.
+</p>

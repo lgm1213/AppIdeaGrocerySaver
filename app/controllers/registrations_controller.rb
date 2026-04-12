@@ -10,6 +10,7 @@ class RegistrationsController < ApplicationController
     @user = User.new(registration_params)
 
     if @user.save
+      WelcomeMailer.welcome(@user).deliver_later
       start_new_session_for(@user)
       redirect_to onboarding_preferences_path, notice: "Welcome to Save & Savor! Let's get you set up."
     else

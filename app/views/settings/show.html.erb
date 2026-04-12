@@ -73,6 +73,28 @@
     <% end %>
   </div>
 
+  <%# Email notifications card %>
+  <div class="card" style="padding: 1.75rem;">
+    <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #373928; margin: 0 0 1rem;">Email Notifications</h2>
+
+    <% pref = @user.user_preference %>
+    <% if pref %>
+      <%= form_with model: pref, url: preferences_path, method: :patch do |f| %>
+        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+          <%= f.hidden_field :email_deal_alerts, value: "0" %>
+          <%= f.check_box :email_deal_alerts, style: "width: 1.125rem; height: 1.125rem; accent-color: #1a7425; cursor: pointer;", value: "1", checked: pref.email_deal_alerts %>
+          <span style="font-size: 0.9375rem; color: #373928;">Receive weekly deal alert emails</span>
+        </label>
+        <p style="font-size: 0.8125rem; color: #81826d; margin: 0.5rem 0 1rem 1.875rem;">
+          We'll email you when ingredients from your favorite recipes are on sale.
+        </p>
+        <%= f.submit "Save", class: "btn btn-sm btn-outline" %>
+      <% end %>
+    <% else %>
+      <p style="color: #81826d; font-size: 0.875rem;">Complete your preferences to manage email settings.</p>
+    <% end %>
+  </div>
+
   <%# Danger zone %>
   <div class="card" style="padding: 1.75rem;">
     <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #c22225; margin: 0 0 0.75rem;">Sign Out</h2>

@@ -49,6 +49,7 @@ class PreferencesController < ApplicationController
       :household_size, :cooking_skill, :meal_complexity,
       :weekly_budget, :zip_code, :preferred_store,
       :meals_per_week, :include_breakfast, :include_lunch, :include_dinner,
+      :email_deal_alerts,
       dietary_restrictions: [], preferred_cuisines: []
     )
   end

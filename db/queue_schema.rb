@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_10_204343) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_11_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -328,6 +328,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_204343) do
     t.datetime "created_at", null: false
     t.datetime "deals_last_seen_at"
     t.string "dietary_restrictions", default: [], array: true
+    t.boolean "email_deal_alerts", default: true, null: false
     t.integer "household_size", default: 2, null: false
     t.boolean "include_breakfast", default: true, null: false
     t.boolean "include_dinner", default: true, null: false
@@ -383,9 +384,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_204343) do
     t.string "password_digest", null: false
     t.string "provider"
     t.string "uid"
+    t.string "unsubscribe_token", null: false
     t.datetime "updated_at", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true, where: "(provider IS NOT NULL)"
+    t.index ["unsubscribe_token"], name: "index_users_on_unsubscribe_token", unique: true
   end
 
   add_foreign_key "deals", "ingredients"

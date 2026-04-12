@@ -31,5 +31,9 @@
 </p>
 
 <p style="color:#6b7280; font-size:0.875em;">
-  You're receiving this because you've liked or rated recipes in GrocerySaver.
+  You're receiving this because you've liked or rated recipes in Save &amp; Savor.
 </p>
+
+<% content_for :footer_links do %>
+  &bull; <%= link_to "Unsubscribe from deal alerts", @unsubscribe_url, style: "color:#81826d;" %>
+<% end %>

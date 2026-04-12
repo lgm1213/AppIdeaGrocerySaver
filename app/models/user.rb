@@ -11,6 +11,8 @@ class User < ApplicationRecord
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
+  before_create :generate_unsubscribe_token
+
   validates :email_address, presence: true,
                              format: { with: URI::MailTo::EMAIL_REGEXP },
                              uniqueness: { case_sensitive: false }
@@ -81,5 +83,9 @@ class User < ApplicationRecord
 
   def oauth_user?
     provider.present?
+  end
+
+  def generate_unsubscribe_token
+    self.unsubscribe_token ||= SecureRandom.urlsafe_base64(24)
   end
 end
