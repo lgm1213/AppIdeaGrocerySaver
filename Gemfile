@@ -27,7 +27,7 @@ gem "omniauth-google-oauth2", "~> 1.1"
 gem "omniauth-rails_csrf_protection", "~> 1.0"
 
 # Pagination — lightweight, Turbo-friendly
-gem "pagy", "~> 9.0"
+gem "pagy", "~> 43.5"
 
 # Headless Chrome for web scraping (Publix + Aldi weekly ads)
 gem "ferrum", "~> 0.17"
