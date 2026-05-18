@@ -33,7 +33,7 @@ gem "pagy", "~> 9.0"
 gem "ferrum", "~> 0.17"
 
 # HTTP client for Kroger Developer API
-gem "faraday", "~> 2.0"
+gem "faraday", "~> 2.14"
 
 # Zip code validation for onboarding
 gem "validates_zipcode", "~> 0.5"
